@@ -51,7 +51,7 @@ export function Today({
   return (
     <>
       <header className="screen__head">
-        <p className="label">{formatFullDay(view.date)}</p>
+        <p className="marker">{formatFullDay(view.date)}</p>
         <h1 className="screen__title">Today</h1>
       </header>
 
@@ -71,7 +71,7 @@ export function Today({
 
       {negatives.length > 0 ? (
         <section className="group">
-          <h2 className="group__label label">Staying away from</h2>
+          <h2 className="group__label marker">Staying away from</h2>
           <div className="group__bands">
             {negatives.map((card) => (
               <HabitBand
@@ -88,7 +88,7 @@ export function Today({
 
       {positives.length > 0 ? (
         <section className="group">
-          <h2 className="group__label label">Keeping up</h2>
+          <h2 className="group__label marker">Keeping up</h2>
           <div className="group__bands">
             {positives.map((card) => (
               <HabitBand

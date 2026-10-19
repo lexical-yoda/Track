@@ -49,7 +49,7 @@ export function Auth({ initialised, onSignIn, onSetUp }: AuthProps) {
   return (
     <main className="auth">
       <form className="auth__card" onSubmit={submit}>
-        <p className="label">{initialised ? "track" : "first run"}</p>
+        <p className="marker">{initialised ? "track" : "first run"}</p>
         <h1 className="auth__title">{initialised ? "Sign in" : "Set up Track"}</h1>
         <p className="auth__lead">
           {initialised

@@ -27,13 +27,27 @@ body {
   overscroll-behavior-y: none;
 }
 
+::selection {
+  background: color-mix(in srgb, var(--kept) 30%, transparent);
+}
+
 /* Every figure in the app is tabular, so columns of numbers line up and a
  * counter ticking from 9 to 10 does not shift the layout. */
 .figure {
   font-family: var(--face-figure);
   font-variant-numeric: tabular-nums lining-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--track-figure);
   line-height: 1;
+}
+
+/* Headings are set in the same serif as the figures, which is what makes the
+ * page read as one printed object rather than as a serif number dropped into a
+ * sans interface. */
+.serif {
+  font-family: var(--face-figure);
+  font-weight: 500;
+  letter-spacing: var(--track-tight);
+  text-wrap: balance;
 }
 
 button,
@@ -84,6 +98,20 @@ a {
   font-size: var(--text-xs);
   letter-spacing: 0.04em;
   color: var(--ink-faint);
+}
+
+/* The line that names a screen or a run of bands. Sentence case and tracked
+ * open — not the all-caps micro-label, which the system sans has no real small
+ * caps for and which the browser would synthesise as plain capitals. Where a
+ * marker heads a section rather than a page it also carries a rule out to the
+ * margin; that is `.group__label`, and it is the almanac's own way of naming
+ * a column without spending a heading on it. */
+.marker {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: var(--track-label);
+  color: var(--ink-faint);
+  line-height: 1.2;
 }
 
 .rule {

@@ -7,9 +7,10 @@
  */
 
 import type { CSSProperties } from "react";
-import { describeDuration, percent } from "../lib/format";
+import { describeDuration, describeSpan, percent, spansAMonth } from "../lib/format";
 import type { HabitCard } from "../lib/types";
 import { WeekStrip } from "./cells";
+import { Glyph } from "./ui";
 
 interface HabitBandProps {
   card: HabitCard;
@@ -38,6 +39,10 @@ export function HabitBand({ card, today, onOpen, onPickDay }: HabitBandProps) {
         </span>
       </button>
 
+      {/* The figures live inside the body rather than under it, so that on a
+          wide screen they can move up onto the same row as the run and the
+          week and fill a band that would otherwise be two things at opposite
+          edges of 54rem. On a phone they stay a ruled strip of their own. */}
       <div className="band__body">
         <div className="band__figure">
           <span className="figure band__count">{summary.current_streak}</span>
@@ -50,48 +55,56 @@ export function HabitBand({ card, today, onOpen, onPickDay }: HabitBandProps) {
           </span>
         </div>
 
-        <div className="band__week">
-          <WeekStrip cells={card.week} onPick={onPickDay} />
-        </div>
-      </div>
-
-      <dl className="band__meta">
-        <div>
-          <dt className="label">Best</dt>
-          <dd>{describeDuration(summary.longest_streak)}</dd>
-        </div>
-        <div>
-          <dt className="label">{negative ? "Kept" : "Done"}</dt>
-          <dd>
-            {summary.kept_days} of {summary.tracked_days}
-          </dd>
-        </div>
-        <div>
-          <dt className="label">Rate</dt>
-          <dd>{percent(summary.success_rate)}</dd>
-        </div>
-        {negative && summary.planned_days ? (
-          <div>
-            <dt className="label">Planned</dt>
-            <dd>{summary.planned_days}</dd>
-          </div>
+        {/* On its own line under the run rather than beside it: a phone has
+            exactly enough width for the figure and seven tappable cells, and
+            nothing left over for a second column of words. */}
+        {spansAMonth(summary.current_streak, today) ? (
+          <p className="band__span label">{describeSpan(summary.current_streak, today)}</p>
         ) : null}
-        {!negative && summary.week ? (
+
+        <dl className="band__meta">
           <div>
-            <dt className="label">This week</dt>
+            <dt className="label">Best</dt>
+            <dd>{describeDuration(summary.longest_streak)}</dd>
+          </div>
+          <div>
+            <dt className="label">{negative ? "Kept" : "Done"}</dt>
             <dd>
-              {summary.week.done}/{summary.week.target}
+              {summary.kept_days} of {summary.tracked_days}
             </dd>
           </div>
-        ) : null}
-      </dl>
+          <div>
+            <dt className="label">Rate</dt>
+            <dd>{percent(summary.success_rate)}</dd>
+          </div>
+          {negative && summary.planned_days ? (
+            <div>
+              <dt className="label">Planned</dt>
+              <dd>{summary.planned_days}</dd>
+            </div>
+          ) : null}
+          {!negative && summary.week ? (
+            <div>
+              <dt className="label">This week</dt>
+              <dd>
+                {summary.week.done}/{summary.week.target}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+
+        <div className="band__week">
+          <WeekStrip cells={card.week} today={today} onPick={onPickDay} />
+        </div>
+      </div>
 
       <button
         type="button"
         className={`band__action${summary.logged_today ? " is-logged" : ""}`}
         onClick={() => onPickDay(today)}
       >
-        {logLabel(card)}
+        <span>{logLabel(card)}</span>
+        <Glyph name={summary.logged_today ? "check" : "forward"} size={16} />
       </button>
     </article>
   );

@@ -92,6 +92,53 @@ export function describeDuration(days: number): string {
   return `${years}y ${months}m`;
 }
 
+/** A run of days as calendar years, months and days: "3 months, 4 days".
+ *
+ * Counted against the calendar rather than by dividing, because months are not
+ * all the same length and a run that started on the 15th reaches "3 months" on
+ * the 15th whatever those months held. The run is taken to end today and to
+ * have begun `days` before it, which is the same interval the day count
+ * describes — so the two figures never disagree.
+ *
+ * Returns "" for a run of nothing, and a plain day count below a month, where
+ * a breakdown would only repeat the figure it sits under.
+ */
+export function describeSpan(days: number, today = todayIso()): string {
+  if (days <= 0) return "";
+
+  const end = fromIso(today);
+  const start = fromIso(addDays(today, -days));
+
+  let years = end.getFullYear() - start.getFullYear();
+  let months = end.getMonth() - start.getMonth();
+  let rest = end.getDate() - start.getDate();
+
+  // Borrow from the month before the end date, which is the one whose length
+  // the remainder is actually measured in.
+  if (rest < 0) {
+    months -= 1;
+    rest += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+  }
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  const parts: string[] = [];
+  if (years > 0) parts.push(`${years} ${years === 1 ? "year" : "years"}`);
+  if (months > 0) parts.push(`${months} ${months === 1 ? "month" : "months"}`);
+  if (rest > 0 || parts.length === 0) {
+    parts.push(`${rest} ${rest === 1 ? "day" : "days"}`);
+  }
+  return parts.join(", ");
+}
+
+/** Whether a run is long enough that the breakdown says anything the day
+ *  count does not. Below a month it would read "27 days" twice over. */
+export function spansAMonth(days: number, today = todayIso()): boolean {
+  return days >= 28 && describeSpan(days, today) !== `${days} days`;
+}
+
 export function percent(rate: number | null): string {
   if (rate === null) return "—";
   return `${(rate * 100).toFixed(1)}%`;

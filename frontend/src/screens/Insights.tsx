@@ -32,7 +32,7 @@ export function Insights({ view, error, months, onMonthsChange }: InsightsProps)
   return (
     <>
       <header className="screen__head">
-        <p className="label">last {months} months</p>
+        <p className="marker">last {months} months</p>
         <h1 className="screen__title">Patterns</h1>
       </header>
 
@@ -164,7 +164,7 @@ function HabitInsight({ habit }: { habit: InsightHabit }) {
                 </div>
                 <span className="chart__tick">{formatMonth(month.month).charAt(0)}</span>
                 <span className="sr">
-                  {month.month}: {month.count}
+                  {formatMonth(month.month)} {month.month.slice(0, 4)}: {month.count}
                 </span>
               </div>
             ))}

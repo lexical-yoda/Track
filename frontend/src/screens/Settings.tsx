@@ -44,7 +44,7 @@ export function Settings({
   return (
     <>
       <header className="screen__head">
-        <p className="label">{username ? `signed in as ${username}` : ""}</p>
+        <p className="marker">{username ? `signed in as ${username}` : ""}</p>
         <h1 className="screen__title">Settings</h1>
       </header>
 
@@ -52,7 +52,9 @@ export function Settings({
         <div className="panel__head">
           <h2 className="panel__title">Habits</h2>
           <span className="label">{active.length} active</span>
-          <Button onClick={onAddHabit}>Add</Button>
+          <Button small onClick={onAddHabit}>
+            Add
+          </Button>
         </div>
         {active.length === 0 ? (
           <p className="panel__foot">None yet.</p>
@@ -81,7 +83,7 @@ export function Settings({
                     disabled={index === 0}
                     onClick={() => onMoveHabit(habit.id, -1)}
                   >
-                    ↑
+                    <Glyph name="up" size={16} />
                   </button>
                   <button
                     type="button"
@@ -90,7 +92,7 @@ export function Settings({
                     disabled={index === active.length - 1}
                     onClick={() => onMoveHabit(habit.id, 1)}
                   >
-                    ↓
+                    <Glyph name="down" size={16} />
                   </button>
                 </span>
               </li>
@@ -133,7 +135,7 @@ export function Settings({
 
       <section className="panel">
         <h2 className="panel__title">Your data</h2>
-        <p className="panel__foot">
+        <p className="panel__lead">
           Both downloads include archived habits and every note. The database file itself
           lives in the container's data volume.
         </p>
@@ -184,7 +186,7 @@ function ReasonEditor({
   return (
     <section className="panel">
       <h2 className="panel__title">Reasons</h2>
-      <p className="panel__foot">
+      <p className="panel__lead">
         The tags offered when you log a slip. Deleting one keeps the slips; they simply lose
         that tag.
       </p>

@@ -198,9 +198,16 @@ export default function App() {
     );
   }
 
+  /* Keyed so that every move between screens remounts the wrapper and replays
+   * its entrance. The animation touches opacity only: a transform here would
+   * make this element the containing block for the sheets rendered inside it,
+   * and a bottom sheet would stop being pinned to the bottom of the window. */
+  const screenKey = route.habitId !== null ? `habit-${route.habitId}` : route.tab;
+
   return (
     <div className="app">
       <main className="app__main">
+        <div className="screen" key={screenKey}>
         {route.habitId !== null ? (
           <HabitDetail
             detail={detail}
@@ -260,6 +267,7 @@ export default function App() {
             }}
           />
         )}
+        </div>
       </main>
 
       <nav className="tabs" aria-label="Sections">

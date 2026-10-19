@@ -16,6 +16,18 @@
   padding: var(--s5) var(--s4) calc(var(--s7) + env(safe-area-inset-bottom) + 3.5rem);
 }
 
+/* Each route gets a fresh key, so this replays on every move between screens.
+ * Only opacity is animated: a transform here would make this element the
+ * containing block for the sheets rendered inside it. */
+.screen {
+  animation: screen-in var(--t-travel) var(--ease-out);
+}
+
+@keyframes screen-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .boot {
   min-height: 100dvh;
   display: grid;
@@ -23,8 +35,20 @@
   padding: var(--s4);
 }
 
+/* The masthead. Every screen carries the same one — a small marker naming the
+ * page's context, the title under it, and a rule drawn beneath both. The rule
+ * is what makes the page read as printed: the title sits on it rather than
+ * floating above the content. */
 .screen__head {
   margin-bottom: var(--s5);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--rule);
+  animation: head-in var(--t-travel) var(--ease-out);
+}
+
+@keyframes head-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
 }
 
 .screen__head--detail {
@@ -34,15 +58,27 @@
   gap: var(--s3);
 }
 
+/* The back and edit buttons on a detail head are pulled out to the page's own
+ * margin, so the title keeps the same left edge as every other screen's. */
+.screen__head--detail .iconbtn:first-child {
+  margin-left: calc(var(--s3) * -1);
+}
+
+.screen__head--detail .iconbtn:last-child {
+  margin-right: calc(var(--s3) * -1);
+}
+
 .screen__title {
   font-family: var(--face-figure);
   font-size: var(--text-lg);
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--track-tight);
+  line-height: 1.2;
+  margin-top: 1px;
 }
 
 .screen__foot {
-  margin-top: var(--s5);
+  margin-top: var(--s6);
 }
 
 /* The tab bar is the only fixed chrome. On a desktop it stays at the bottom
@@ -64,6 +100,7 @@
 }
 
 .tabs__tab {
+  position: relative;
   flex: 1;
   max-width: 8rem;
   min-height: var(--tap);
@@ -77,11 +114,30 @@
   color: var(--ink-faint);
   font-size: var(--text-xs);
   letter-spacing: 0.02em;
-  transition: color 0.15s var(--ease);
+  transition: color var(--t-settle) var(--ease);
+}
+
+/* The current tab is marked by a short rule above it rather than by a pill
+ * behind it — the same way a column is marked anywhere else in the app. */
+.tabs__tab::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.25rem;
+  border-top: 2px solid var(--kept);
+  transform: translateX(-50%) scaleX(0);
+  opacity: 0;
+  transition: transform var(--t-settle) var(--ease-out), opacity var(--t-settle) var(--ease);
 }
 
 .tabs__tab.is-on {
   color: var(--ink);
+}
+
+.tabs__tab.is-on::before {
+  transform: translateX(-50%) scaleX(1);
+  opacity: 1;
 }
 
 .tabs__tab.is-on .glyph {
@@ -98,9 +154,19 @@
   margin-bottom: var(--s6);
 }
 
+/* The name of a run of bands, with a rule running from it out to the right
+ * margin: a column head in a printed table. */
 .group__label {
-  margin-bottom: var(--s2);
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+
+.group__label::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--rule);
 }
 
 .group__bands {
@@ -116,9 +182,16 @@
   position: relative;
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-left: 2px solid var(--accent, var(--rule-strong));
+  border-left: 3px solid var(--accent, var(--rule-strong));
   border-radius: var(--radius);
   overflow: hidden;
+  transition: border-color var(--t-settle) var(--ease);
+}
+
+.band:hover {
+  border-top-color: var(--rule-strong);
+  border-right-color: var(--rule-strong);
+  border-bottom-color: var(--rule-strong);
 }
 
 .band__head {
@@ -127,28 +200,44 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--s3);
-  padding: var(--s3) var(--s4) 0;
+  padding: var(--s3) var(--s4) var(--s2);
   text-align: left;
+  transition: background var(--t-press) var(--ease);
+}
+
+.band__head:hover {
+  background: var(--surface-raised);
+}
+
+.band__head:active {
+  background: var(--surface-raised);
 }
 
 .band__name {
   font-family: var(--face-figure);
   font-size: var(--text-md);
+  font-weight: 500;
+  letter-spacing: var(--track-tight);
 }
 
+/* Phone: the run and the week sit on one row, with the figures ruled off
+ * beneath them. Desktop: all three sit on the same row, because a band 54rem
+ * wide with only two things on it is a hollow row rather than a ledger line. */
 .band__body {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--s4);
-  padding: var(--s2) var(--s4) var(--s3);
+  column-gap: var(--s4);
+  padding: 0 var(--s4) var(--s3);
 }
 
 .band__figure {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 4.5rem;
+  gap: var(--s1);
+  min-width: 4rem;
 }
 
 .band__count {
@@ -158,21 +247,49 @@
 
 .band__unit {
   white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* The run said as a length, on its own line under the figure and the week.
+ * It is the quietest thing on the band: the count above it is the figure that
+ * moves, and this only says what that count comes to. */
+.band__span {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: var(--s2);
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--ink-faint) 85%, var(--ground));
+}
+
+.band__week {
+  grid-column: 2;
+  grid-row: 1;
+  /* Stretches to its column rather than sizing to its own content: on a phone
+   * the column is what is left over and the cells shrink into it, on a desktop
+   * the column is sized by the strip's natural width and they sit at full
+   * size. An explicit width here instead collapses the desktop column to the
+   * width of the weekday letters. */
+  min-width: 0;
 }
 
 .band__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s1) var(--s5);
-  padding: var(--s3) var(--s4);
-  border-top: 1px solid var(--rule);
-  margin: 0;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr));
+  gap: var(--s2);
+  /* Pulled back out to the band's own edges so the rule above it reads as a
+   * ledger rule running the width of the row, not as an inset divider. */
+  margin: var(--s3) calc(var(--s4) * -1) 0;
+  padding: var(--s3) var(--s4) 0;
+  border-top: 1px solid var(--rule-hair);
 }
 
 .band__meta div {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  min-width: 0;
 }
 
 .band__meta dt {
@@ -184,17 +301,28 @@
   font-family: var(--face-figure);
   font-variant-numeric: tabular-nums;
   font-size: var(--text-sm);
+  letter-spacing: var(--track-tight);
+  white-space: nowrap;
 }
 
 .band__action {
   width: 100%;
   min-height: var(--tap);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
   padding: var(--s2) var(--s4);
   border-top: 1px solid var(--rule);
   text-align: left;
   font-size: var(--text-sm);
   color: var(--ink-muted);
-  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+  transition: background var(--t-press) var(--ease), color var(--t-press) var(--ease);
+}
+
+.band__action .glyph {
+  color: var(--ink-faint);
+  transition: color var(--t-press) var(--ease), transform var(--t-settle) var(--ease-out);
 }
 
 .band__action:hover {
@@ -202,8 +330,22 @@
   color: var(--ink);
 }
 
+.band__action:hover .glyph {
+  color: var(--ink-muted);
+  transform: translateX(2px);
+}
+
+.band__action:active {
+  background: var(--rule-hair);
+}
+
 .band__action.is-logged {
   color: var(--ink-faint);
+}
+
+.band__action.is-logged .glyph {
+  color: var(--kept);
+  transform: none;
 }
 
 /* ── The day cell, and the two things built from it ─────────────────────── */
@@ -243,41 +385,87 @@
 
 button.cell {
   cursor: pointer;
-  transition: transform 0.1s var(--ease);
+  transition: transform var(--t-press) var(--ease-out), box-shadow var(--t-press) var(--ease);
 }
 
 button.cell:hover {
   transform: scale(1.25);
 }
 
-/* The week strip is the same cell at a comfortable tap size. */
+button.cell:active {
+  transform: scale(0.94);
+}
+
+/* The week strip is the same cell at a comfortable tap size.
+ *
+ * The cells are sized by the space the band has left rather than fixed, and
+ * capped so they stop growing once they are comfortable. Seven fixed cells
+ * plus the run beside them need more width than a 320px phone has, and the
+ * seventh day was being cut off the right edge. */
 .strip {
   display: flex;
-  gap: var(--s2);
+  gap: var(--strip-gap);
+  min-width: 0;
 }
 
 .strip__day {
+  position: relative;
+  /* The basis is the comfortable size, so the strip asks for its full width
+   * wherever there is room — including a grid column sized to its content,
+   * which a basis of 0 would collapse to nothing. It shrinks from there when
+   * the band is narrow, and never grows past the cap. */
+  flex: 1 1 var(--strip-cell-max);
+  min-width: 0;
+  max-width: var(--strip-cell-max);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--s1);
+  padding-bottom: 6px;
+}
+
+/* Today is marked with a tick below the cell rather than a ring around it: a
+ * ring would compete with the cell's own colour, which is the one thing here
+ * that carries meaning. */
+.strip__day--today::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  right: 25%;
+  border-top: 2px solid var(--ink-muted);
+  border-radius: 1px;
+}
+
+.strip__day--today .strip__letter {
+  color: var(--ink-muted);
 }
 
 .strip__letter {
   font-size: var(--text-xs);
   color: var(--ink-faint);
   line-height: 1;
+  transition: color var(--t-settle) var(--ease);
 }
 
 .strip .cell {
-  width: 26px;
-  height: 26px;
+  /* A real width rather than 100%, so the strip has an intrinsic size for a
+   * grid column to be measured against; the cap below lets it give way when
+   * the column turns out to be narrower. */
+  width: var(--strip-cell-max);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   border-radius: var(--radius);
 }
 
 .strip button.cell:hover {
   transform: none;
   box-shadow: inset 0 0 0 1px var(--ink-faint);
+}
+
+.strip button.cell:active {
+  transform: scale(0.92);
 }
 
 .heatmap {
@@ -290,7 +478,7 @@ button.cell:hover {
   display: grid;
   grid-auto-rows: var(--cell);
   gap: var(--cell-gap);
-  padding-top: calc(var(--text-xs) + var(--s1));
+  padding-top: calc(var(--text-xs) + var(--s2));
   font-size: var(--text-xs);
   color: var(--ink-faint);
   line-height: var(--cell);
@@ -300,6 +488,7 @@ button.cell:hover {
   flex: 1;
   overflow-x: auto;
   padding-bottom: var(--s1);
+  scrollbar-width: thin;
 }
 
 .heatmap__months,
@@ -314,7 +503,8 @@ button.cell:hover {
   grid-auto-columns: var(--cell);
   font-size: var(--text-xs);
   color: var(--ink-faint);
-  margin-bottom: var(--s1);
+  letter-spacing: 0.02em;
+  margin-bottom: var(--s2);
 }
 
 .heatmap__grid {
@@ -322,30 +512,42 @@ button.cell:hover {
   grid-auto-columns: var(--cell);
 }
 
+/* A clean day inside a year of clean days is the ground, not the ink. Printed
+ * at full strength a 98% year is a solid block in which the three days that
+ * actually happened cannot be found. Thinning the field — rather than
+ * brightening the slip — makes them findable without making them an alarm.
+ * A day *done* on a positive habit is the event itself, so it keeps its full
+ * weight here. */
+.heatmap .cell--clean {
+  background: var(--kept-field);
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s2) var(--s3);
+  gap: var(--s2) var(--s4);
   font-size: var(--text-xs);
   color: var(--ink-faint);
   min-width: 0;
 }
 
 .legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
   white-space: nowrap;
 }
 
-.legend__item {
-  display: flex;
-  align-items: center;
-  gap: var(--s1);
+/* The legend's swatches describe the grid below them, so they are drawn at the
+ * weight that grid actually uses. */
+.legend .cell--clean {
+  background: var(--kept-field);
 }
 
 /* ── The counter ────────────────────────────────────────────────────────── */
 
 .counter {
   padding: var(--s5) 0 var(--s5);
-  border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
   margin-bottom: var(--s5);
 }
@@ -360,9 +562,22 @@ button.cell:hover {
 }
 
 .counter__unit {
-  margin-top: var(--s2);
+  margin-top: var(--s3);
   color: var(--ink-muted);
   font-size: var(--text-sm);
+}
+
+/* The same run said as a length rather than as a count. It follows the unit on
+ * the same line, divided by a middot, so the figure above keeps a single line
+ * of text under it rather than a stack of three. */
+.counter__span::before {
+  content: "·";
+  margin: 0 var(--s2);
+  color: var(--ink-faint);
+}
+
+.counter__span {
+  color: var(--ink-faint);
 }
 
 .counter__since {
@@ -371,8 +586,10 @@ button.cell:hover {
   font-size: var(--text-xs);
 }
 
+/* The run towards the next milestone, set as a measure: where you are on the
+ * left, the rule between, the mark you are heading for at the right end. */
 .counter__next {
-  margin-top: var(--s4);
+  margin-top: var(--s5);
   font-size: var(--text-xs);
   color: var(--ink-faint);
   display: flex;
@@ -382,9 +599,9 @@ button.cell:hover {
 
 .counter__bar {
   flex: 1;
-  height: 2px;
+  height: 3px;
   background: var(--rule);
-  border-radius: 1px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -392,21 +609,41 @@ button.cell:hover {
   display: block;
   height: 100%;
   background: var(--kept);
+  border-radius: 2px;
+  transition: width var(--t-travel) var(--ease-out);
+}
+
+.counter__target {
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
 }
 
 /* ── Stats, panels, charts ──────────────────────────────────────────────── */
 
+/* The summary figures are set as a ruled table rather than as tiles: each
+ * figure sits under its own rule, which is how a printed table separates
+ * columns and costs nothing in surfaces or shadows. */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
-  gap: var(--s4);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--s4);
   margin: 0 0 var(--s6);
+}
+
+/* A short last row would otherwise leave its rule stopping half way across,
+ * which reads as a broken rule rather than as the end of the table. The last
+ * figure takes the rest of its row instead. The column count is written out
+ * rather than auto-fit precisely so these can be counted. */
+.stats > div:last-child:nth-child(odd) {
+  grid-column: span 2;
 }
 
 .stats div {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: var(--s3) 0;
+  border-top: 1px solid var(--rule-hair);
 }
 
 .stats dt {
@@ -424,23 +661,41 @@ button.cell:hover {
 }
 
 .panel {
-  padding: var(--s4) 0;
+  padding: var(--s5) 0 var(--s4);
   border-top: 1px solid var(--rule);
 }
 
+.panel:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* A head holds a title, an optional count, and an optional action. The action
+ * is pushed to the right edge whatever else is there, so a three-part head
+ * does not collapse into a ragged row on a phone. */
 .panel__head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s2);
+  gap: var(--s2) var(--s3);
   margin-bottom: var(--s3);
+}
+
+.panel__head > .btn {
+  margin-left: auto;
+  align-self: center;
+}
+
+.panel__head > .label:last-child,
+.panel__head > .marker:last-child {
+  margin-left: auto;
 }
 
 .panel__title {
   font-family: var(--face-figure);
   font-size: var(--text-md);
   font-weight: 500;
+  letter-spacing: var(--track-tight);
   margin-bottom: var(--s3);
 }
 
@@ -452,7 +707,28 @@ button.cell:hover {
   margin-top: var(--s3);
   font-size: var(--text-sm);
   color: var(--ink-faint);
-  max-width: 42ch;
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+/* A standing note under a panel's title, explaining what the controls below
+ * it do. It sits above its controls and is read before them, so it carries a
+ * step more weight than the trailing note above. */
+.panel__lead {
+  margin: calc(var(--s2) * -1) 0 var(--s4);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  max-width: 52ch;
+  text-wrap: pretty;
+}
+
+/* The key to the grid above it, set as a caption and ruled off from it. On a
+ * phone this does not fit beside the heading, which is where it used to run
+ * off the right edge of the screen. */
+.panel__legend {
+  margin-top: var(--s3);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule-hair);
 }
 
 .panel__prose {
@@ -460,13 +736,14 @@ button.cell:hover {
   color: var(--ink-muted);
   max-width: 60ch;
   white-space: pre-wrap;
+  text-wrap: pretty;
 }
 
 .panel__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s2);
-  margin-top: var(--s3);
+  margin-top: var(--s4);
 }
 
 .milestones {
@@ -486,14 +763,28 @@ button.cell:hover {
 }
 
 .chart__title {
-  display: block;
-  margin: var(--s4) 0 var(--s2);
+  margin: var(--s5) 0 var(--s3);
 }
 
+/* The bars stand on a baseline rule, which is the whole chart. Drawing the
+ * empty part of each column as a filled slot — which is what this did before —
+ * puts more ink on the page for the days nothing happened than for the days
+ * something did, and seven tall dark rectangles read as the data. */
 .chart {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: var(--cell-gap);
+}
+
+.chart::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--chart-h);
+  border-top: 1px solid var(--rule-strong);
+  pointer-events: none;
 }
 
 .chart__col {
@@ -501,39 +792,46 @@ button.cell:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s1);
+  gap: var(--s2);
   min-width: 0;
 }
 
-.chart--weekday .chart__track {
-  height: 4.5rem;
+.chart--weekday {
+  --chart-h: 4.5rem;
 }
 
-.chart--month .chart__track {
-  height: 3rem;
+.chart--month {
+  --chart-h: 3rem;
 }
 
 .chart__track {
   width: 100%;
+  height: var(--chart-h);
   display: flex;
   align-items: flex-end;
-  background: var(--empty);
-  border-radius: 2px;
+  justify-content: center;
 }
 
 .chart__bar {
-  width: 100%;
+  width: 62%;
+  max-width: 1.75rem;
   min-height: 2px;
   background: var(--accent, var(--kept));
-  border-radius: 2px;
+  border-radius: 2px 2px 0 0;
+  animation: bar-rise var(--t-travel) var(--ease-out);
+  transform-origin: bottom;
 }
 
-/* Slip bars are the madder pigment thinned against the ground. At full
- * strength a chart of three slips looks like a crisis; this keeps it legible
- * as data. The reason bars below stay stronger, because there the length
- * carries the comparison and the colour only identifies the series. */
+@keyframes bar-rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+/* Thinned madder: legible as data, never as an alarm. How far it is thinned
+ * differs between the two grounds, which is why the amount lives in the
+ * tokens rather than here. */
 .chart__bar--slip {
-  background: color-mix(in srgb, var(--slipped) 62%, var(--ground));
+  background: var(--slip-chart);
 }
 
 .chart__tick,
@@ -541,10 +839,16 @@ button.cell:hover {
   font-size: var(--text-xs);
   color: var(--ink-faint);
   font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.chart__col .chart__tick {
+  margin-top: calc(var(--s2) * -1 + 1px);
 }
 
 .chart__value {
-  opacity: 0.75;
+  font-family: var(--face-figure);
+  color: color-mix(in srgb, var(--ink-faint) 80%, var(--ground));
 }
 
 .bars {
@@ -557,7 +861,7 @@ button.cell:hover {
 
 .bars__row {
   display: grid;
-  grid-template-columns: minmax(5rem, 8rem) 1fr 2rem;
+  grid-template-columns: minmax(4.5rem, 7rem) 1fr 1.75rem;
   align-items: center;
   gap: var(--s3);
   font-size: var(--text-sm);
@@ -571,8 +875,8 @@ button.cell:hover {
 }
 
 .bars__track {
-  height: 10px;
-  background: var(--empty);
+  height: 8px;
+  background: color-mix(in srgb, var(--empty) 70%, var(--ground));
   border-radius: 2px;
   overflow: hidden;
 }
@@ -580,12 +884,20 @@ button.cell:hover {
 .bars__fill {
   display: block;
   height: 100%;
-  background: color-mix(in srgb, var(--slipped) 78%, var(--ground));
+  background: var(--slip-bar);
   border-radius: 2px;
+  transform-origin: left;
+  animation: bar-grow var(--t-travel) var(--ease-out);
+}
+
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 .bars__value {
   text-align: right;
+  font-family: var(--face-figure);
   font-variant-numeric: tabular-nums;
   color: var(--ink-faint);
   font-size: var(--text-xs);
@@ -599,23 +911,46 @@ button.cell:hover {
   padding: 0;
 }
 
+/* Each logged day carries the same pigment as its cell, as a rail at the left
+ * edge. It is the heatmap read as a list: the colour already means something,
+ * so the list costs nothing to learn. */
 .log__row {
   display: grid;
   gap: var(--s1);
   width: 100%;
-  padding: var(--s3) 0;
-  border-bottom: 1px solid var(--rule);
+  padding: var(--s3) var(--s3) var(--s3) var(--s4);
+  margin-inline: calc(var(--s3) * -1);
+  border-bottom: 1px solid var(--rule-hair);
+  border-left: 2px solid transparent;
   text-align: left;
+  transition: background var(--t-press) var(--ease), border-left-color var(--t-settle) var(--ease);
+}
+
+.log__row--slip {
+  border-left-color: var(--slip-bar);
+}
+
+.log__row--planned {
+  border-left-color: color-mix(in srgb, var(--allowed) 70%, var(--ground));
+}
+
+.log__row--done {
+  border-left-color: color-mix(in srgb, var(--kept) 70%, var(--ground));
 }
 
 .log__row:hover {
   background: var(--surface);
 }
 
+.log__row:active {
+  background: var(--surface-raised);
+}
+
 .log__date {
   font-family: var(--face-figure);
   font-variant-numeric: tabular-nums;
   font-size: var(--text-sm);
+  letter-spacing: var(--track-tight);
 }
 
 .log__tags {
@@ -624,10 +959,15 @@ button.cell:hover {
   gap: var(--s1);
 }
 
+.log__tags:empty {
+  display: none;
+}
+
 .log__note {
   font-size: var(--text-sm);
   color: var(--ink-muted);
   max-width: 60ch;
+  text-wrap: pretty;
 }
 
 .tag {
@@ -639,19 +979,25 @@ button.cell:hover {
 }
 
 .tag--planned {
-  border-color: var(--allowed);
+  border-color: color-mix(in srgb, var(--allowed) 60%, transparent);
   color: var(--allowed);
 }
 
 .tag--amount {
   font-variant-numeric: tabular-nums;
+  font-family: var(--face-figure);
 }
 
 .rows__row {
   display: flex;
   align-items: center;
   gap: var(--s3);
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule-hair);
+  transition: background var(--t-press) var(--ease);
+}
+
+.rows__row:hover {
+  background: var(--surface);
 }
 
 .rows__dot {
@@ -668,15 +1014,19 @@ button.cell:hover {
   padding: var(--s3) 0;
   text-align: left;
   min-height: var(--tap);
+  min-width: 0;
 }
 
 .rows__name {
+  font-family: var(--face-figure);
   font-size: var(--text-base);
+  letter-spacing: var(--track-tight);
 }
 
 .rows__move {
   display: flex;
   gap: var(--s1);
+  padding-right: var(--s1);
 }
 
 /* ── Controls ───────────────────────────────────────────────────────────── */
@@ -692,21 +1042,36 @@ button.cell:hover {
   border: 1px solid var(--rule-strong);
   font-size: var(--text-sm);
   text-decoration: none;
-  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+  transition: background var(--t-press) var(--ease), border-color var(--t-press) var(--ease),
+    transform var(--t-press) var(--ease);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .btn--full {
   width: 100%;
 }
 
+.btn--sm {
+  min-height: 2.25rem;
+  padding: var(--s1) var(--s3);
+  font-size: var(--text-sm);
+}
+
 .btn--solid {
   background: var(--kept);
   border-color: var(--kept);
-  color: #0f1512;
+  /* The ink that reads on the kept pigment. It has to flip with the theme: on
+   * paper the pigment is darkened to hold against white, and near-black text
+   * on it would be two dark colours on top of each other. */
+  color: var(--on-kept, #0f1512);
 }
 
 .btn--solid:hover {
-  background: color-mix(in srgb, var(--kept) 88%, white);
+  background: color-mix(in srgb, var(--kept) 88%, var(--ink));
+  border-color: color-mix(in srgb, var(--kept) 88%, var(--ink));
 }
 
 .btn--outline:hover {
@@ -724,12 +1089,13 @@ button.cell:hover {
 }
 
 .btn--danger {
-  border-color: var(--slipped);
+  border-color: color-mix(in srgb, var(--slipped) 70%, transparent);
   color: var(--slipped);
 }
 
 .btn--danger:hover {
   background: color-mix(in srgb, var(--slipped) 12%, transparent);
+  border-color: var(--slipped);
 }
 
 .btn:disabled {
@@ -744,6 +1110,7 @@ button.cell:hover {
   height: var(--tap);
   border-radius: var(--radius);
   color: var(--ink-muted);
+  transition: background var(--t-press) var(--ease), color var(--t-press) var(--ease);
 }
 
 .iconbtn--sm {
@@ -753,8 +1120,12 @@ button.cell:hover {
 }
 
 .iconbtn:hover {
-  background: var(--surface);
+  background: var(--surface-raised);
   color: var(--ink);
+}
+
+.iconbtn:active:not(:disabled) {
+  background: var(--rule-hair);
 }
 
 .iconbtn:disabled {
@@ -764,7 +1135,7 @@ button.cell:hover {
 
 .field {
   display: grid;
-  gap: var(--s1);
+  gap: var(--s2);
   margin-bottom: var(--s4);
 }
 
@@ -777,6 +1148,7 @@ button.cell:hover {
   font-size: var(--text-xs);
   color: var(--ink-faint);
   max-width: 48ch;
+  text-wrap: pretty;
 }
 
 .input {
@@ -787,17 +1159,24 @@ button.cell:hover {
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius);
   font-size: var(--text-base);
+  transition: border-color var(--t-settle) var(--ease), background var(--t-settle) var(--ease);
+}
+
+.input:hover {
+  border-color: var(--ink-faint);
 }
 
 .input:focus {
   outline: none;
   border-color: var(--kept);
+  background: var(--surface);
 }
 
 .input--area {
   min-height: 4.5rem;
   resize: vertical;
   font-family: inherit;
+  line-height: 1.5;
 }
 
 .segmented {
@@ -817,7 +1196,12 @@ button.cell:hover {
   font-size: var(--text-sm);
   color: var(--ink-faint);
   white-space: nowrap;
-  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+  transition: background var(--t-settle) var(--ease), color var(--t-settle) var(--ease);
+}
+
+.segmented__option:hover:not(.is-on) {
+  color: var(--ink-muted);
+  background: var(--surface);
 }
 
 .segmented__option.is-on {
@@ -849,7 +1233,7 @@ button.cell:hover {
   border-radius: 1rem;
   background: var(--empty);
   box-shadow: inset 0 0 0 1px var(--rule-strong);
-  transition: background 0.15s var(--ease);
+  transition: background var(--t-settle) var(--ease), box-shadow var(--t-settle) var(--ease);
 }
 
 .switch__knob {
@@ -859,11 +1243,12 @@ button.cell:hover {
   margin: 0.1875rem;
   border-radius: 50%;
   background: var(--ink-faint);
-  transition: transform 0.15s var(--ease), background 0.15s var(--ease);
+  transition: transform var(--t-settle) var(--ease-out), background var(--t-settle) var(--ease);
 }
 
 .switch input:checked + .switch__track {
   background: color-mix(in srgb, var(--allowed) 30%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--allowed) 55%, transparent);
 }
 
 .switch input:checked + .switch__track .switch__knob {
@@ -898,16 +1283,19 @@ button.cell:hover {
   border-radius: var(--radius);
   font-size: var(--text-sm);
   color: var(--ink-muted);
-  transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+  transition: border-color var(--t-settle) var(--ease), color var(--t-settle) var(--ease),
+    background var(--t-settle) var(--ease);
 }
 
 .chip:hover {
   border-color: var(--ink-faint);
+  color: var(--ink);
 }
 
 .chip.is-on {
   border-color: var(--allowed);
   color: var(--allowed);
+  background: color-mix(in srgb, var(--allowed) 10%, transparent);
 }
 
 .chip--static {
@@ -921,6 +1309,7 @@ button.cell:hover {
   height: 1.25rem;
   color: var(--ink-faint);
   border-radius: 2px;
+  transition: color var(--t-press) var(--ease);
 }
 
 .chip__remove:hover {
@@ -939,12 +1328,17 @@ button.cell:hover {
   border-radius: var(--radius);
   background: var(--swatch);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ground) 35%, transparent);
+  transition: transform var(--t-press) var(--ease-out), box-shadow var(--t-settle) var(--ease);
+}
+
+.swatch:hover {
+  transform: scale(1.08);
 }
 
 .swatch.is-on {
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--ground) 35%, transparent),
-    0 0 0 2px var(--ground),
+    0 0 0 2px var(--surface),
     0 0 0 3px var(--ink);
 }
 
@@ -977,10 +1371,11 @@ button.cell:hover {
   border-radius: var(--radius);
   font-size: var(--text-sm);
   margin-bottom: var(--s3);
+  text-wrap: pretty;
 }
 
 .notice--error {
-  border: 1px solid var(--slipped);
+  border: 1px solid color-mix(in srgb, var(--slipped) 70%, transparent);
   color: var(--slipped);
   background: color-mix(in srgb, var(--slipped) 10%, transparent);
 }
@@ -1028,11 +1423,13 @@ button.cell:hover {
 .empty__lead {
   font-family: var(--face-figure);
   font-size: var(--text-md);
+  letter-spacing: var(--track-tight);
 }
 
 .empty__body {
   font-size: var(--text-sm);
   color: var(--ink-muted);
+  text-wrap: pretty;
 }
 
 /* ── Sheets ─────────────────────────────────────────────────────────────── */
@@ -1045,7 +1442,7 @@ button.cell:hover {
   align-items: flex-end;
   justify-content: center;
   background: color-mix(in srgb, #000 55%, transparent);
-  animation: fade 0.15s var(--ease);
+  animation: fade var(--t-settle) var(--ease);
 }
 
 .sheet__panel {
@@ -1058,7 +1455,18 @@ button.cell:hover {
   border: 1px solid var(--rule-strong);
   border-bottom: none;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  animation: rise 0.22s var(--ease);
+  animation: rise var(--t-travel) var(--ease-out);
+}
+
+/* The grab bar is not draggable — it is there because a panel that arrives
+ * from the bottom edge of a phone is read as a sheet, and a sheet has one. */
+.sheet__grab {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 4px;
+  margin: var(--s2) auto calc(var(--s2) * -1);
+  border-radius: 2px;
+  background: var(--rule-strong);
 }
 
 .sheet__head {
@@ -1074,10 +1482,12 @@ button.cell:hover {
   font-family: var(--face-figure);
   font-size: var(--text-md);
   font-weight: 500;
+  letter-spacing: var(--track-tight);
+  text-wrap: balance;
 }
 
 .sheet__subtitle {
-  margin-top: 2px;
+  margin-top: var(--s1);
   font-size: var(--text-xs);
   color: var(--ink-faint);
 }
@@ -1090,6 +1500,7 @@ button.cell:hover {
   margin: -0.25rem -0.25rem 0 0;
   border-radius: var(--radius);
   color: var(--ink-faint);
+  transition: background var(--t-press) var(--ease), color var(--t-press) var(--ease);
 }
 
 .sheet__close:hover {
@@ -1105,7 +1516,7 @@ button.cell:hover {
 .sheet__actions {
   display: grid;
   gap: var(--s2);
-  margin-top: var(--s4);
+  margin-top: var(--s5);
 }
 
 @keyframes fade {
@@ -1114,8 +1525,8 @@ button.cell:hover {
 }
 
 @keyframes rise {
-  from { transform: translateY(12px); }
-  to   { transform: translateY(0); }
+  from { transform: translateY(28px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 
 /* ── Auth ───────────────────────────────────────────────────────────────── */
@@ -1135,12 +1546,14 @@ button.cell:hover {
   border: 1px solid var(--rule);
   border-top: 2px solid var(--kept);
   border-radius: var(--radius);
+  animation: rise var(--t-travel) var(--ease-out);
 }
 
 .auth__title {
   font-family: var(--face-figure);
   font-size: var(--text-lg);
   font-weight: 500;
+  letter-spacing: var(--track-tight);
   margin: var(--s1) 0 var(--s2);
 }
 
@@ -1148,6 +1561,7 @@ button.cell:hover {
   font-size: var(--text-sm);
   color: var(--ink-muted);
   margin-bottom: var(--s5);
+  text-wrap: pretty;
 }
 
 /* ── Wider viewports ────────────────────────────────────────────────────── */
@@ -1157,19 +1571,47 @@ button.cell:hover {
     padding-inline: var(--s5);
   }
 
-  .band__body {
+  .band__head {
     padding-inline: var(--s5);
   }
 
-  .band__head,
-  .band__meta,
   .band__action {
     padding-inline: var(--s5);
   }
 
-  .strip .cell {
-    width: 30px;
-    height: 30px;
+  /* The band becomes one ledger line: the run, the figures it is made of, and
+   * the week, all on the same row. Stacked, a band this wide is mostly empty
+   * space between two things at opposite edges. */
+  .band__body {
+    grid-template-columns: auto 1fr auto;
+    column-gap: var(--s6);
+    padding: 0 var(--s5) var(--s4);
+  }
+
+  /* The figures spread on a regular rhythm across the middle of the row
+   * rather than bunching next to the run, which is what turns the band from
+   * two things at opposite edges into a line of a table. */
+  .band__meta {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(4.5rem, 7rem);
+    justify-content: start;
+    gap: var(--s4);
+    margin: 0;
+    padding: 0;
+    border-top: 0;
+  }
+
+  .band__span {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: var(--s1);
+  }
+
+  .band__week {
+    grid-column: 3;
   }
 
   .sheet {
@@ -1182,6 +1624,10 @@ button.cell:hover {
     border-radius: var(--radius-lg);
   }
 
+  .sheet__grab {
+    display: none;
+  }
+
   .tabs {
     justify-content: center;
     gap: var(--s4);
@@ -1191,6 +1637,57 @@ button.cell:hover {
     flex-direction: row;
     gap: var(--s2);
     font-size: var(--text-sm);
+  }
+
+  .chart__col {
+    gap: var(--s3);
+  }
+
+  /* Seven bars stretched across 54rem are seven marks a long way apart, not a
+   * chart. The plot keeps a width a row of bars can actually be read across,
+   * and the bars grow with it. */
+  .chart {
+    max-width: 34rem;
+  }
+
+  .chart__bar {
+    max-width: 2.75rem;
+  }
+
+  /* The same measure as the plot above, so the three charts on a habit read
+   * as one column rather than as two widths. */
+  .bars {
+    max-width: 34rem;
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stats > div:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+
+  .stats > div:last-child:nth-child(3n + 1) {
+    grid-column: span 3;
+  }
+
+  .stats > div:last-child:nth-child(3n + 2) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 23rem) {
+  :root {
+    --strip-gap: 4px;
+  }
+
+  .band__body {
+    column-gap: var(--s2);
+  }
+
+  .band__figure {
+    min-width: 3.25rem;
   }
 }
 

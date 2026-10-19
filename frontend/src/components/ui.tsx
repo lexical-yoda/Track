@@ -10,6 +10,10 @@ interface ButtonProps {
   variant?: "solid" | "outline" | "quiet" | "danger";
   disabled?: boolean;
   full?: boolean;
+  /** Shorter, for a control that sits on a heading's baseline rather than on
+   *  its own row. Still meets the touch target where it matters, because the
+   *  only places it is used are desk-and-thumb settings rows. */
+  small?: boolean;
 }
 
 export function Button({
@@ -19,11 +23,12 @@ export function Button({
   variant = "outline",
   disabled,
   full,
+  small,
 }: ButtonProps) {
   return (
     <button
       type={type}
-      className={`btn btn--${variant}${full ? " btn--full" : ""}`}
+      className={`btn btn--${variant}${full ? " btn--full" : ""}${small ? " btn--sm" : ""}`}
       onClick={onClick}
       disabled={disabled}
     >
@@ -147,6 +152,7 @@ export function Sheet({ title, subtitle, onClose, children }: SheetProps) {
         ref={panel}
         onClick={(event) => event.stopPropagation()}
       >
+        <span className="sheet__grab" aria-hidden="true" />
         <div className="sheet__head">
           <div>
             <h2 className="sheet__title">{title}</h2>
@@ -182,7 +188,17 @@ export function Spinner({ label = "Loading" }: { label?: string }) {
  * them, and five hand-set strokes weigh less than a dependency and match the
  * rule weight used everywhere else. */
 
-type GlyphName = "close" | "back" | "today" | "chart" | "gear" | "plus" | "check";
+type GlyphName =
+  | "close"
+  | "back"
+  | "today"
+  | "chart"
+  | "gear"
+  | "plus"
+  | "check"
+  | "up"
+  | "down"
+  | "forward";
 
 const PATHS: Record<GlyphName, string> = {
   close: "M5 5l10 10M15 5L5 15",
@@ -192,6 +208,9 @@ const PATHS: Record<GlyphName, string> = {
   gear: "M10 7.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM10 3v2M10 15v2M3 10h2M15 10h2M5.2 5.2l1.4 1.4M13.4 13.4l1.4 1.4M14.8 5.2l-1.4 1.4M6.6 13.4l-1.4 1.4",
   plus: "M10 4v12M4 10h12",
   check: "M4 10.5l4 4 8-9",
+  up: "M10 16V5M5 10l5-5 5 5",
+  down: "M10 4v11M15 10l-5 5-5-5",
+  forward: "M8 4l7 6-7 6",
 };
 
 export function Glyph({ name, size = 20 }: { name: GlyphName; size?: number }) {

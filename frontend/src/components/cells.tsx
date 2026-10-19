@@ -41,6 +41,7 @@ export function DayCell({ date, state, size, title, onClick }: DayCellProps) {
 
 interface WeekStripProps {
   cells: WeekCell[];
+  today: string;
   onPick: (date: string) => void;
 }
 
@@ -49,13 +50,18 @@ interface WeekStripProps {
  * This is the reason the Today screen is enough on its own most days: a day
  * forgotten yesterday can be filled in without leaving the first screen.
  */
-export function WeekStrip({ cells, onPick }: WeekStripProps) {
+export function WeekStrip({ cells, today, onPick }: WeekStripProps) {
   return (
     <div className="strip" role="group" aria-label="This week">
       {cells.map((cell) => {
         const weekday = WEEKDAYS[(fromIso(cell.date).getDay() + 6) % 7] ?? "";
+        // Seven cells with no mark on them leave you counting backwards from
+        // the end of the row to find out where you are. The tick under today
+        // is drawn below the cell rather than around it, so it cannot be
+        // mistaken for one of the states.
+        const isToday = cell.date === today;
         return (
-          <div className="strip__day" key={cell.date}>
+          <div className={`strip__day${isToday ? " strip__day--today" : ""}`} key={cell.date}>
             <span className="strip__letter" aria-hidden="true">
               {weekday.charAt(0)}
             </span>
@@ -139,8 +145,9 @@ interface MonthMark {
 
 /** Column spans for the month labels above the grid.
  *
- * A month gets a label only when it owns at least two columns, so short
- * leading and trailing months do not collide with their neighbours.
+ * A month gets a label only when it owns at least three columns, which is the
+ * width three letters need at cell size. Below that the label runs into its
+ * neighbour, so a short leading or trailing month goes unlabelled instead.
  */
 function monthBoundaries(cells: HeatmapCell[]): MonthMark[] {
   const columns: { month: number; year: number }[] = [];
@@ -161,7 +168,7 @@ function monthBoundaries(cells: HeatmapCell[]): MonthMark[] {
       !current || current.month !== previous.month || current.year !== previous.year;
     if (!changed) continue;
     const span = index - start;
-    if (span >= 2) {
+    if (span >= 3) {
       marks.push({
         key: `${previous.year}-${previous.month}`,
         label: MONTH_LABELS[previous.month] ?? "",

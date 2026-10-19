@@ -1,7 +1,7 @@
 /* Design tokens for Track.
  *
  * The reference object is a printed almanac: a day-ledger where the data is a
- * dense grid of days and the typography exists to make numbers readable. Three
+ * dense grid of days and the typography exists to make numbers readable. Four
  * consequences run through everything below.
  *
  * 1. The ground is warm ink, not blue-black and not cream. Dark because the app
@@ -12,6 +12,11 @@
  *    slip should look recorded, never scolded.
  * 3. Radii are small and surfaces are separated by rules, not shadows. Paper
  *    does not float.
+ * 4. Ordinary days are the ground the ink sits on. An unbroken run is printed
+ *    as a quiet field rather than at full strength, so that the few days that
+ *    actually happened are the ones the eye finds. Making the exception legible
+ *    is not the same as making it loud: the slip pigment itself never gets
+ *    brighter, the field around it gets calmer.
  */
 
 :root {
@@ -26,6 +31,9 @@
   --surface-raised: #26201d;
   --rule: #352d28;
   --rule-strong: #473c35;
+  /* A rule one step below --rule, for divisions inside a surface that should
+   * organise without being counted as another edge. */
+  --rule-hair: #2a2320;
 
   /* Ink on that ground. */
   --ink: #f1ebe2;
@@ -39,6 +47,28 @@
   --allowed: #a8812f;       /* brass: a planned, accepted exception */
   --empty: #2a2421;         /* a tracked day with nothing in it */
   --untracked: transparent; /* before the habit began, or still to come */
+
+  /* The weight a clean day is printed at inside a year of them. Between --kept
+   * and --kept-dim: enough to read as a continuous run from across the room,
+   * quiet enough that a slip is findable without the slip being shouted. Used
+   * only at heatmap scale; the week strip, where there are seven cells and
+   * each one is a target, keeps the full pigment. */
+  --kept-field: #3a6a57;
+
+  /* The madder pigment thinned for a chart, where a bar at full strength makes
+   * three slips look like a crisis. Thinning means mixing towards the ground,
+   * which under ink darkens the pigment and on paper lightens it — so the two
+   * grounds need different amounts, or the light theme washes the bars out to
+   * a pale smudge. The reason bars stay stronger than the columns, because
+   * there the length carries the comparison and the colour only names the
+   * series. */
+  --slip-chart: color-mix(in srgb, var(--slipped) 62%, var(--ground));
+  --slip-bar: color-mix(in srgb, var(--slipped) 78%, var(--ground));
+
+  /* The ink that reads on a solid "kept" surface. It flips with the theme:
+   * under ink the pigment is light enough to carry near-black text, on paper
+   * it is darkened to hold its weight and needs the page colour instead. */
+  --on-kept: #0f1512;
 
   /* Per-habit accents, named after the pigments rather than the hues, so the
    * palette cannot drift into a generic rainbow. */
@@ -68,6 +98,14 @@
   --figure: 2.75rem;
   --figure-lg: 4rem;
 
+  /* Tracking. A serif figure at 4rem needs to be drawn in tighter than the
+   * same face at 13px, which wants a touch of air instead. Setting both here
+   * keeps the two ends of the scale from being tuned independently and
+   * drifting apart. */
+  --track-figure: -0.025em;
+  --track-tight: -0.01em;
+  --track-label: 0.06em;
+
   /* Spacing on a 4px base. */
   --s1: 0.25rem;
   --s2: 0.5rem;
@@ -82,9 +120,22 @@
   --cell: 13px;       /* heatmap cell edge */
   --cell-gap: 3px;
 
+  /* The week strip's cells are fluid: they take what the band has left and
+   * stop growing here. A fixed size overflowed a narrow phone, because seven
+   * of them plus the run beside them wanted more width than it has. */
+  --strip-cell-max: 30px;
+  --strip-gap: var(--s2);
+
   --tap: 44px;        /* minimum comfortable touch target */
 
+  /* Motion. One curve, three speeds: a press answers immediately, a surface
+   * settles, a sheet travels. Nothing here is decorative — every duration is
+   * attached to something the user did. */
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-press: 90ms;
+  --t-settle: 170ms;
+  --t-travel: 280ms;
 }
 
 /* Light mode is the same almanac printed rather than inked: warm paper, the
@@ -98,6 +149,7 @@
     --surface-raised: #fdf8ee;
     --rule: #e0d7c7;
     --rule-strong: #cabfab;
+    --rule-hair: #ece4d6;
 
     --ink: #241d18;
     --ink-muted: #6b5f54;
@@ -108,6 +160,13 @@
     --slipped: #9c3627;
     --allowed: #8a6a1f;
     --empty: #ebe3d4;
+
+    /* On paper the field is thinned towards the page rather than towards the
+     * ink, so a clean year reads as a wash and not as a block of green. */
+    --kept-field: #7faa93;
+    --on-kept: #fffcf6;
+    --slip-chart: color-mix(in srgb, var(--slipped) 78%, var(--ground));
+    --slip-bar: color-mix(in srgb, var(--slipped) 88%, var(--ground));
 
     --accent-verdigris: #2f6b53;
     --accent-brass: #8a6a1f;
@@ -127,6 +186,7 @@
   --surface-raised: #fdf8ee;
   --rule: #e0d7c7;
   --rule-strong: #cabfab;
+  --rule-hair: #ece4d6;
 
   --ink: #241d18;
   --ink-muted: #6b5f54;
@@ -137,6 +197,11 @@
   --slipped: #9c3627;
   --allowed: #8a6a1f;
   --empty: #ebe3d4;
+
+  --kept-field: #7faa93;
+  --on-kept: #fffcf6;
+  --slip-chart: color-mix(in srgb, var(--slipped) 78%, var(--ground));
+  --slip-bar: color-mix(in srgb, var(--slipped) 88%, var(--ground));
 
   --accent-verdigris: #2f6b53;
   --accent-brass: #8a6a1f;

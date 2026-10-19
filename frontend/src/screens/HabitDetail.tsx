@@ -5,9 +5,11 @@ import { Button, Glyph, Notice, Spinner } from "../components/ui";
 import {
   daysAgo,
   describeDuration,
+  describeSpan,
   formatDay,
   formatFullDay,
   percent,
+  spansAMonth,
   withUnit,
 } from "../lib/format";
 import type { Entry, EntryPayload, Habit, HabitDetail as Detail, Summary } from "../lib/types";
@@ -49,7 +51,7 @@ export function HabitDetail({
           <Glyph name="back" />
         </button>
         <div>
-          <p className="label">{negative ? "avoiding" : "keeping up"}</p>
+          <p className="marker">{negative ? "avoiding" : "keeping up"}</p>
           <h1 className="screen__title">{detail.name}</h1>
         </div>
         <button type="button" className="iconbtn" onClick={onEdit} aria-label="Edit habit">
@@ -59,7 +61,18 @@ export function HabitDetail({
 
       <section className="counter">
         <span className="figure counter__value">{summary.current_streak}</span>
-        <p className="counter__unit">{negative ? "days clean" : "days in a row"}</p>
+        <p className="counter__unit">
+          {negative ? "days clean" : "days in a row"}
+          {/* Past a month the day count stops being a length you can picture.
+              The breakdown is carried beside it rather than instead of it,
+              because the figure above is the one that ticks over each
+              morning and is the reason to open the app. */}
+          {spansAMonth(summary.current_streak, today) ? (
+            <span className="counter__span">
+              {describeSpan(summary.current_streak, today)}
+            </span>
+          ) : null}
+        </p>
         {negative ? (
           <p className="counter__since">
             {summary.last_slip
@@ -69,13 +82,14 @@ export function HabitDetail({
         ) : null}
         {milestones.next ? (
           <p className="counter__next">
-            {milestones.next - summary.current_streak} days to {milestones.next}
+            <span>{milestones.next - summary.current_streak} days to</span>
             <span className="counter__bar" aria-hidden="true">
               <span
                 className="counter__fill"
                 style={{ width: `${progressTo(summary.current_streak, milestones)}%` }}
               />
             </span>
+            <span className="figure counter__target">{milestones.next}</span>
           </p>
         ) : null}
       </section>
@@ -126,14 +140,14 @@ export function HabitDetail({
       </dl>
 
       <section className="panel">
-        <div className="panel__head">
-          <h2 className="panel__title">The year</h2>
-          <CellLegend kind={detail.kind} />
-        </div>
+        <h2 className="panel__title">The year</h2>
         <Heatmap
           cells={detail.heatmap}
           onPick={(date) => setEditing({ date, entry: byDate.get(date) ?? null })}
         />
+        <div className="panel__legend">
+          <CellLegend kind={detail.kind} />
+        </div>
         <p className="panel__foot">
           Tap any day to log it or change it. Days before {formatDay(detail.start_date)} are
           not tracked.
@@ -176,7 +190,7 @@ export function HabitDetail({
               <li key={entry.id}>
                 <button
                   type="button"
-                  className="log__row"
+                  className={`log__row log__row--${entryTone(entry, negative)}`}
                   onClick={() => setEditing({ date: entry.date, entry })}
                 >
                   <span className="log__date">{formatFullDay(entry.date)}</span>
@@ -255,6 +269,12 @@ function footLabel(kind: Habit["kind"], summary: Summary): string {
 function countLabel(total: number, negative: boolean): string {
   if (total === 0) return negative ? "none yet" : "none yet";
   return `${total} ${total === 1 ? "day" : "days"} recorded`;
+}
+
+/** Which pigment a logged day is filed under, matching its cell in the grid. */
+function entryTone(entry: Entry, negative: boolean): "slip" | "planned" | "done" {
+  if (!negative) return "done";
+  return entry.planned ? "planned" : "slip";
 }
 
 function formatAmount(value: number): string {
