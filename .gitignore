@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Local data — the database, and anything a dev run leaves behind
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local notes that should not reach a public repository
+*.local.md

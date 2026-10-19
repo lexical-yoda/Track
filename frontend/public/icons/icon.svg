@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Track">
+  <!-- The app icon is the app's one primitive: a block of day cells, mostly
+       kept, with a single slip and a single planned exception. -->
+  <rect width="512" height="512" fill="#151110"/>
+  <g>
+    <rect x="96"  y="96"  width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="184" y="96"  width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="272" y="96"  width="72" height="72" rx="8" fill="#a8402f"/>
+    <rect x="360" y="96"  width="72" height="72" rx="8" fill="#4e8f74"/>
+
+    <rect x="96"  y="184" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="184" y="184" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="272" y="184" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="360" y="184" width="72" height="72" rx="8" fill="#4e8f74"/>
+
+    <rect x="96"  y="272" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="184" y="272" width="72" height="72" rx="8" fill="#a8812f"/>
+    <rect x="272" y="272" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="360" y="272" width="72" height="72" rx="8" fill="#4e8f74"/>
+
+    <rect x="96"  y="360" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="184" y="360" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="272" y="360" width="72" height="72" rx="8" fill="#4e8f74"/>
+    <rect x="360" y="360" width="72" height="72" rx="8" fill="#2a4d41"/>
+  </g>
+</svg>

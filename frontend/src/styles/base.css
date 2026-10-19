@@ -1,0 +1,102 @@
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--face-text);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Installed as a PWA the page owns the whole screen, including the area
+   * behind the home indicator, so the layout pads itself from the safe area. */
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+
+/* Every figure in the app is tabular, so columns of numbers line up and a
+ * counter ticking from 9 to 10 does not shift the layout. */
+.figure {
+  font-family: var(--face-figure);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  /* iOS Safari highlights every tap grey; the components below draw their own
+   * pressed state instead. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--kept);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* Visible only to a screen reader. Used for the state of each day cell, which
+ * is otherwise conveyed by colour alone. */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

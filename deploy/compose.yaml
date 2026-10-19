@@ -1,0 +1,50 @@
+# Dockhand stack `track` on TrueNAS.
+#
+# Install at /mnt/apps/appdata/dockhand/data/stacks/HomeLab/track/compose.yaml,
+# then adopt the stack in Dockhand so it is not left untracked.
+#
+# The data directory must exist and belong to uid 10001 before the first start:
+#
+#   sudo mkdir -p /mnt/apps/appdata/track
+#   sudo chown 10001:10001 /mnt/apps/appdata/track
+#   sudo chmod 700 /mnt/apps/appdata/track
+#
+# It sits under appdata, so Duplicati's nightly backup already covers it.
+
+services:
+  track:
+    image: ghcr.io/lexical-yoda/track:latest
+    container_name: track
+    ports:
+      # Published on all interfaces so nginx on the VPS can reach it over
+      # WireGuard. Nothing else on the LAN should be pointed at it.
+      - "8470:8470"
+    volumes:
+      - /mnt/apps/appdata/track:/app/data
+    environment:
+      # Every date in the app is a local date, so this decides when "today"
+      # rolls over. Getting it wrong moves entries by a day.
+      - TZ=Asia/Kolkata
+      # The app is served over HTTPS by nginx, so the session cookie is Secure.
+      - SECURE_COOKIES=true
+      - SESSION_DAYS=90
+      - LOGIN_MAX_ATTEMPTS=8
+      - LOGIN_WINDOW_MINUTES=15
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    restart: unless-stopped
+
+# IPv4 only. With IPv6 enabled on the Docker daemon, published ports of an
+# IPv4-only app accept IPv6 connections and then drop them, which made seven
+# services falsely show as down when Executor was deployed.
+networks:
+  default:
+    enable_ipv6: false

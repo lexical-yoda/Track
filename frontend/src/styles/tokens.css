@@ -1,0 +1,149 @@
+/* Design tokens for Track.
+ *
+ * The reference object is a printed almanac: a day-ledger where the data is a
+ * dense grid of days and the typography exists to make numbers readable. Three
+ * consequences run through everything below.
+ *
+ * 1. The ground is warm ink, not blue-black and not cream. Dark because the app
+ *    gets opened last thing at night; warm because a cold slate reads as a
+ *    dashboard and this is a diary.
+ * 2. The state colours — kept, slipped, allowed — are aged pigments (verdigris,
+ *    madder, brass) rather than signal colours. They are data, not alerts. A
+ *    slip should look recorded, never scolded.
+ * 3. Radii are small and surfaces are separated by rules, not shadows. Paper
+ *    does not float.
+ */
+
+:root {
+  /* Tells the browser to render its own chrome — scrollbars, date pickers,
+   * form controls — to match. Without it a bright scrollbar sits over the dark
+   * page and the date input opens as a white panel. */
+  color-scheme: dark;
+
+  /* Warm ink ground, four steps. */
+  --ground: #151110;
+  --surface: #1d1816;
+  --surface-raised: #26201d;
+  --rule: #352d28;
+  --rule-strong: #473c35;
+
+  /* Ink on that ground. */
+  --ink: #f1ebe2;
+  --ink-muted: #ab9f94;
+  --ink-faint: #7a6f66;
+
+  /* Day-cell states. Aged pigments, deliberately not signal colours. */
+  --kept: #4e8f74;          /* verdigris: a clean day, or a day done */
+  --kept-dim: #2a4d41;      /* the same pigment, thinned, for quiet runs */
+  --slipped: #a8402f;       /* madder: an unplanned slip */
+  --allowed: #a8812f;       /* brass: a planned, accepted exception */
+  --empty: #2a2421;         /* a tracked day with nothing in it */
+  --untracked: transparent; /* before the habit began, or still to come */
+
+  /* Per-habit accents, named after the pigments rather than the hues, so the
+   * palette cannot drift into a generic rainbow. */
+  --accent-verdigris: #4e8f74;
+  --accent-brass: #a8812f;
+  --accent-madder: #a8402f;
+  --accent-indigo: #5566a8;
+  --accent-moss: #74893c;
+  --accent-iron: #7e8894;
+  --accent-plum: #8a5277;
+  --accent-cobalt: #3f7f9b;
+
+  /* Type. No webfont: the CSP allows nothing from another origin, and the
+   * system serif on Lexi's devices (New York on Apple platforms) sets numerals
+   * better than anything worth the download. */
+  --face-text: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --face-figure: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+  --face-mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", monospace;
+
+  /* A small scale, used strictly. */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.375rem;
+  --figure-sm: 1.75rem;
+  --figure: 2.75rem;
+  --figure-lg: 4rem;
+
+  /* Spacing on a 4px base. */
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --s7: 3rem;
+
+  --radius: 3px;
+  --radius-lg: 6px;
+  --cell: 13px;       /* heatmap cell edge */
+  --cell-gap: 3px;
+
+  --tap: 44px;        /* minimum comfortable touch target */
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Light mode is the same almanac printed rather than inked: warm paper, the
+ * same pigments darkened so they hold their weight against white. It is not a
+ * separate design, which is why only the ground and ink values move. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --ground: #f6f1e8;
+    --surface: #fffcf6;
+    --surface-raised: #fdf8ee;
+    --rule: #e0d7c7;
+    --rule-strong: #cabfab;
+
+    --ink: #241d18;
+    --ink-muted: #6b5f54;
+    --ink-faint: #93877a;
+
+    --kept: #2f6b53;
+    --kept-dim: #bcd6c9;
+    --slipped: #9c3627;
+    --allowed: #8a6a1f;
+    --empty: #ebe3d4;
+
+    --accent-verdigris: #2f6b53;
+    --accent-brass: #8a6a1f;
+    --accent-madder: #9c3627;
+    --accent-indigo: #3f4e8a;
+    --accent-moss: #5a6c2a;
+    --accent-iron: #5d6773;
+    --accent-plum: #6e3c5c;
+    --accent-cobalt: #2a6680;
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ground: #f6f1e8;
+  --surface: #fffcf6;
+  --surface-raised: #fdf8ee;
+  --rule: #e0d7c7;
+  --rule-strong: #cabfab;
+
+  --ink: #241d18;
+  --ink-muted: #6b5f54;
+  --ink-faint: #93877a;
+
+  --kept: #2f6b53;
+  --kept-dim: #bcd6c9;
+  --slipped: #9c3627;
+  --allowed: #8a6a1f;
+  --empty: #ebe3d4;
+
+  --accent-verdigris: #2f6b53;
+  --accent-brass: #8a6a1f;
+  --accent-madder: #9c3627;
+  --accent-indigo: #3f4e8a;
+  --accent-moss: #5a6c2a;
+  --accent-iron: #5d6773;
+  --accent-plum: #6e3c5c;
+  --accent-cobalt: #2a6680;
+}
