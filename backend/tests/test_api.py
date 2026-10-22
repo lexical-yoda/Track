@@ -99,13 +99,16 @@ def test_create_and_list_a_habit(signed_in):
             "kind": "negative",
             "start_date": "2026-09-01",
             "allows_planned": True,
-            "accent": "brass",
+            "color": "#D4A32E",
+            "icon": "🚬",
             "unit": "cigarettes",
         },
     )
     assert created.status_code == 201
     habit = created.json()
     assert habit["name"] == "Quit smoking"
+    assert habit["color"] == "#D4A32E"
+    assert habit["icon"] == "🚬"
     assert habit["allows_planned"] is True
 
     today = signed_in.get("/api/today").json()
@@ -114,12 +117,22 @@ def test_create_and_list_a_habit(signed_in):
     assert today["reasons"], "default reason tags should be seeded"
 
 
-def test_an_unknown_accent_is_rejected(signed_in):
+def test_a_colour_that_is_not_hex_is_rejected(signed_in):
     response = signed_in.post(
         "/api/habits",
-        json={"name": "Gym", "kind": "positive", "start_date": "2026-10-01", "accent": "neon"},
+        json={"name": "Gym", "kind": "positive", "start_date": "2026-10-01", "color": "neon"},
     )
     assert response.status_code == 422
+
+
+def test_a_habit_defaults_to_no_symbol_and_the_default_colour(signed_in):
+    created = signed_in.post(
+        "/api/habits",
+        json={"name": "Gym", "kind": "positive", "start_date": "2026-10-01"},
+    )
+    assert created.status_code == 201
+    assert created.json()["icon"] == ""
+    assert created.json()["color"] == "#3FA87B"
 
 
 def test_a_future_start_date_is_rejected(signed_in):

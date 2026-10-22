@@ -7,9 +7,10 @@
  * keep every bar reachable by a screen reader.
  */
 
-import { useState, type CSSProperties } from "react";
-import { Notice, Segmented, Spinner } from "../components/ui";
+import { useState } from "react";
+import { Mark, Notice, Segmented, Spinner } from "../components/ui";
 import { formatMonth, percent, WEEKDAYS } from "../lib/format";
+import { habitStyle } from "../lib/palette";
 import type { InsightHabit, InsightsView } from "../lib/types";
 
 const SCALE_FLOOR = 4;
@@ -79,12 +80,11 @@ function HabitInsight({ habit }: { habit: InsightHabit }) {
   const totalLogged = habit.weekday.reduce((sum, count) => sum + count, 0);
 
   return (
-    <section
-      className="panel"
-      style={{ "--accent": `var(--accent-${habit.accent})` } as CSSProperties}
-    >
+    <section className="panel tinted" style={habitStyle(habit)}>
       <div className="panel__head">
-        <h2 className="panel__title">{habit.name}</h2>
+        <h2 className="panel__title">
+          <Mark habit={habit} size="sm" /> {habit.name}
+        </h2>
         <span className="label">
           {percent(habit.summary.success_rate)} kept, {habit.summary.current_streak} day run
         </span>

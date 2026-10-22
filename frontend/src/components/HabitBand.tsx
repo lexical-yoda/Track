@@ -6,11 +6,11 @@
  * stay bands and simply get wider, so the two layouts are the same design.
  */
 
-import type { CSSProperties } from "react";
 import { describeDuration, describeSpan, percent, spansAMonth } from "../lib/format";
+import { habitStyle } from "../lib/palette";
 import type { HabitCard } from "../lib/types";
 import { WeekStrip } from "./cells";
-import { Glyph } from "./ui";
+import { Glyph, Mark } from "./ui";
 
 interface HabitBandProps {
   card: HabitCard;
@@ -24,13 +24,11 @@ export function HabitBand({ card, today, onOpen, onPickDay }: HabitBandProps) {
   const negative = card.kind === "negative";
 
   return (
-    <article
-      className="band"
-      style={{ "--accent": `var(--accent-${card.accent})` } as CSSProperties}
-    >
+    <article className="band tinted" style={habitStyle(card)}>
       <button type="button" className="band__head" onClick={onOpen}>
+        <Mark habit={card} />
         <span className="band__name">{card.name}</span>
-        <span className="band__kind label">
+        <span className="band__kind">
           {negative
             ? "avoiding"
             : card.target_per_week

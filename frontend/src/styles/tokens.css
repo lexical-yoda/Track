@@ -1,22 +1,25 @@
 /* Design tokens for Track.
  *
- * The reference object is a printed almanac: a day-ledger where the data is a
- * dense grid of days and the typography exists to make numbers readable. Four
- * consequences run through everything below.
+ * The app is a private record of days, opened last thing at night, and the data
+ * is a grid of days with two or three states. Five rules follow from that and
+ * run through everything below.
  *
- * 1. The ground is warm ink, not blue-black and not cream. Dark because the app
- *    gets opened last thing at night; warm because a cold slate reads as a
- *    dashboard and this is a diary.
- * 2. The state colours — kept, slipped, allowed — are aged pigments (verdigris,
- *    madder, brass) rather than signal colours. They are data, not alerts. A
- *    slip should look recorded, never scolded.
- * 3. Radii are small and surfaces are separated by rules, not shadows. Paper
- *    does not float.
- * 4. Ordinary days are the ground the ink sits on. An unbroken run is printed
- *    as a quiet field rather than at full strength, so that the few days that
- *    actually happened are the ones the eye finds. Making the exception legible
- *    is not the same as making it loud: the slip pigment itself never gets
- *    brighter, the field around it gets calmer.
+ * 1. The ground is a warm near-black with real steps above it. A surface has to
+ *    read as an object you can touch, not as a slightly lighter patch of page:
+ *    the earlier palette sat every step within a few percent of the ground and
+ *    the whole screen read as one dim wash.
+ * 2. The state colours — kept, slipped, allowed — are the only colours that
+ *    carry meaning, and they never change with the habit. A clean run drawn in
+ *    the colour someone picked for "Smoking" would read as an alarm.
+ * 3. A habit's own colour and symbol identify it instead: the mark, the card's
+ *    edge, the wash behind it, and the days of a habit it is doing. Every one
+ *    of those is the data saying which habit this is, not decoration.
+ * 4. Type is the system face at every size, with weight and scale doing the
+ *    work. Figures are tabular and set heavy, because the count is the thing
+ *    the app exists to show.
+ * 5. Surfaces are separated by a border and a step in value, not by a shadow.
+ *    One soft shadow exists, for the things that genuinely float: a sheet and
+ *    the tab bar.
  */
 
 :root {
@@ -25,27 +28,30 @@
    * page and the date input opens as a white panel. */
   color-scheme: dark;
 
-  /* Warm ink ground, four steps. */
-  --ground: #151110;
-  --surface: #1d1816;
-  --surface-raised: #26201d;
-  --rule: #352d28;
-  --rule-strong: #473c35;
-  /* A rule one step below --rule, for divisions inside a surface that should
+  /* Warm near-black, four steps. The gaps between them are wide enough to see
+   * without a card ever looking like it is lit from somewhere. */
+  --ground: #100f0e;
+  --surface: #1a1816;
+  --surface-raised: #232120;
+  --line: #2e2a27;
+  --line-strong: #413b36;
+  /* A line one step below --line, for divisions inside a surface that should
    * organise without being counted as another edge. */
-  --rule-hair: #2a2320;
+  --line-hair: #262220;
 
-  /* Ink on that ground. */
-  --ink: #f1ebe2;
-  --ink-muted: #ab9f94;
-  --ink-faint: #7a6f66;
+  /* Ink on that ground. --ink-faint is the floor: it still clears 4.5:1 on the
+   * surface, because every label in this app is small. */
+  --ink: #f3eee8;
+  --ink-muted: #b0a79e;
+  --ink-faint: #8b8178;
 
-  /* Day-cell states. Aged pigments, deliberately not signal colours. */
-  --kept: #4e8f74;          /* verdigris: a clean day, or a day done */
-  --kept-dim: #2a4d41;      /* the same pigment, thinned, for quiet runs */
-  --slipped: #a8402f;       /* madder: an unplanned slip */
-  --allowed: #a8812f;       /* brass: a planned, accepted exception */
-  --empty: #2a2421;         /* a tracked day with nothing in it */
+  /* Day-cell states. Aged pigments, lifted enough to hold against the deeper
+   * ground, and deliberately not signal colours. */
+  --kept: #4fa882;          /* verdigris: a clean day, or a day done */
+  --kept-dim: #2c5346;      /* the same pigment, thinned, for quiet runs */
+  --slipped: #c2563f;       /* madder: an unplanned slip */
+  --allowed: #c3912f;       /* brass: a planned, accepted exception */
+  --empty: #272321;         /* a tracked day with nothing in it */
   --untracked: transparent; /* before the habit began, or still to come */
 
   /* The weight a clean day is printed at inside a year of them. Between --kept
@@ -53,7 +59,7 @@
    * quiet enough that a slip is findable without the slip being shouted. Used
    * only at heatmap scale; the week strip, where there are seven cells and
    * each one is a target, keeps the full pigment. */
-  --kept-field: #3a6a57;
+  --kept-field: #3b7a61;
 
   /* The madder pigment thinned for a chart, where a bar at full strength makes
    * three slips look like a crisis. Thinning means mixing towards the ground,
@@ -62,49 +68,54 @@
    * a pale smudge. The reason bars stay stronger than the columns, because
    * there the length carries the comparison and the colour only names the
    * series. */
-  --slip-chart: color-mix(in srgb, var(--slipped) 62%, var(--ground));
-  --slip-bar: color-mix(in srgb, var(--slipped) 78%, var(--ground));
+  --slip-chart: color-mix(in srgb, var(--slipped) 66%, var(--ground));
+  --slip-bar: color-mix(in srgb, var(--slipped) 80%, var(--ground));
 
   /* The ink that reads on a solid "kept" surface. It flips with the theme:
    * under ink the pigment is light enough to carry near-black text, on paper
    * it is darkened to hold its weight and needs the page colour instead. */
-  --on-kept: #0f1512;
+  --on-kept: #0c1310;
 
-  /* Per-habit accents, named after the pigments rather than the hues, so the
-   * palette cannot drift into a generic rainbow. */
-  --accent-verdigris: #4e8f74;
-  --accent-brass: #a8812f;
-  --accent-madder: #a8402f;
-  --accent-indigo: #5566a8;
-  --accent-moss: #74893c;
-  --accent-iron: #7e8894;
-  --accent-plum: #8a5277;
-  --accent-cobalt: #3f7f9b;
+  /* The colour a habit falls back to before one is picked. The rest of the
+   * palette is in lib/palette.ts, because it is offered as choices in the UI
+   * rather than used by the stylesheet. */
+  --habit: #3fa87b;
 
   /* Type. No webfont: the CSP allows nothing from another origin, and the
-   * system serif on Lexi's devices (New York on Apple platforms) sets numerals
-   * better than anything worth the download. */
+   * system face is the one the rest of the phone is set in, which is most of
+   * what makes an interface feel native rather than drawn. Figures use the
+   * same face with tabular numerals rather than a serif — a light serif
+   * numeral at 56px is the single thing that made this screen look printed
+   * rather than current. */
   --face-text: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --face-figure: ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+  --face-figure: var(--face-text);
   --face-mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", monospace;
 
-  /* A small scale, used strictly. */
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-base: 0.9375rem;
-  --text-md: 1.0625rem;
+  /* A small scale, used strictly. Everything is a step larger than it was: the
+   * old scale topped out below what a phone reads comfortably at arm's length. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8438rem;
+  --text-base: 0.9688rem;
+  --text-md: 1.0938rem;
   --text-lg: 1.375rem;
-  --figure-sm: 1.75rem;
-  --figure: 2.75rem;
-  --figure-lg: 4rem;
+  --text-xl: 1.75rem;
+  --figure-sm: 1.625rem;
+  --figure: 3rem;
+  --figure-lg: 4.25rem;
 
-  /* Tracking. A serif figure at 4rem needs to be drawn in tighter than the
-   * same face at 13px, which wants a touch of air instead. Setting both here
-   * keeps the two ends of the scale from being tuned independently and
-   * drifting apart. */
-  --track-figure: -0.025em;
-  --track-tight: -0.01em;
-  --track-label: 0.06em;
+  /* Weights. The figure weight is the one deliberate decision here: a count set
+   * at 600 reads as a number the app is asserting, at 400 as a number it
+   * happens to be storing. */
+  --weight-figure: 620;
+  --weight-title: 600;
+  --weight-label: 500;
+
+  /* Tracking. A figure at 4rem needs to be drawn in tighter than the same face
+   * at 13px, which wants a touch of air instead. Setting both here keeps the
+   * two ends of the scale from being tuned independently and drifting apart. */
+  --track-figure: -0.03em;
+  --track-tight: -0.015em;
+  --track-label: 0.01em;
 
   /* Spacing on a 4px base. */
   --s1: 0.25rem;
@@ -115,18 +126,30 @@
   --s6: 2rem;
   --s7: 3rem;
 
-  --radius: 3px;
-  --radius-lg: 6px;
+  /* Radii. Larger than before and in three clear steps, which is most of what
+   * separates a current interface from one drawn in 2014. A cell keeps the
+   * smallest, because at 13px anything rounder is a dot. */
+  --radius-sm: 7px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
   --cell: 13px;       /* heatmap cell edge */
   --cell-gap: 3px;
+  --cell-radius: 3.5px;
 
-  /* The week strip's cells are fluid: they take what the band has left and
+  /* The week strip's cells are fluid: they take what the card has left and
    * stop growing here. A fixed size overflowed a narrow phone, because seven
    * of them plus the run beside them wanted more width than it has. */
-  --strip-cell-max: 30px;
+  --strip-cell-max: 34px;
   --strip-gap: var(--s2);
 
   --tap: 44px;        /* minimum comfortable touch target */
+
+  /* One shadow, for the two things that genuinely sit above the page: a sheet
+   * and the tab bar. Cards use a border and a step in value instead, so a
+   * screen of them stays flat and readable. */
+  --lift: 0 18px 44px -12px rgb(0 0 0 / 0.65);
 
   /* Motion. One curve, three speeds: a press answers immediately, a surface
    * settles, a sheet travels. Nothing here is decorative — every duration is
@@ -138,77 +161,101 @@
   --t-travel: 280ms;
 }
 
-/* Light mode is the same almanac printed rather than inked: warm paper, the
- * same pigments darkened so they hold their weight against white. It is not a
- * separate design, which is why only the ground and ink values move. */
+/* Light mode is the same app on paper: warm white, the same pigments darkened
+ * so they hold their weight. It is not a separate design, which is why only the
+ * ground, the ink and the pigments move. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --ground: #f6f1e8;
-    --surface: #fffcf6;
-    --surface-raised: #fdf8ee;
-    --rule: #e0d7c7;
-    --rule-strong: #cabfab;
-    --rule-hair: #ece4d6;
+    --ground: #f6f3ed;
+    --surface: #fffdf9;
+    --surface-raised: #f1ece3;
+    --line: #e4ded3;
+    --line-strong: #cdc4b6;
+    --line-hair: #ece7dd;
 
-    --ink: #241d18;
-    --ink-muted: #6b5f54;
-    --ink-faint: #93877a;
+    --ink: #1e1a16;
+    --ink-muted: #5f564d;
+    --ink-faint: #837a71;
 
-    --kept: #2f6b53;
-    --kept-dim: #bcd6c9;
-    --slipped: #9c3627;
+    --kept: #2f7a5c;
+    --kept-dim: #c3dbcf;
+    --slipped: #a33d2b;
     --allowed: #8a6a1f;
-    --empty: #ebe3d4;
+    --empty: #e9e3d8;
 
     /* On paper the field is thinned towards the page rather than towards the
      * ink, so a clean year reads as a wash and not as a block of green. */
-    --kept-field: #7faa93;
-    --on-kept: #fffcf6;
+    --kept-field: #7fae95;
+    --on-kept: #fffdf9;
     --slip-chart: color-mix(in srgb, var(--slipped) 78%, var(--ground));
     --slip-bar: color-mix(in srgb, var(--slipped) 88%, var(--ground));
 
-    --accent-verdigris: #2f6b53;
-    --accent-brass: #8a6a1f;
-    --accent-madder: #9c3627;
-    --accent-indigo: #3f4e8a;
-    --accent-moss: #5a6c2a;
-    --accent-iron: #5d6773;
-    --accent-plum: #6e3c5c;
-    --accent-cobalt: #2a6680;
+    --lift: 0 16px 40px -14px rgb(60 45 30 / 0.3);
   }
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --ground: #f6f1e8;
-  --surface: #fffcf6;
-  --surface-raised: #fdf8ee;
-  --rule: #e0d7c7;
-  --rule-strong: #cabfab;
-  --rule-hair: #ece4d6;
+  --ground: #f6f3ed;
+  --surface: #fffdf9;
+  --surface-raised: #f1ece3;
+  --line: #e4ded3;
+  --line-strong: #cdc4b6;
+  --line-hair: #ece7dd;
 
-  --ink: #241d18;
-  --ink-muted: #6b5f54;
-  --ink-faint: #93877a;
+  --ink: #1e1a16;
+  --ink-muted: #5f564d;
+  --ink-faint: #837a71;
 
-  --kept: #2f6b53;
-  --kept-dim: #bcd6c9;
-  --slipped: #9c3627;
+  --kept: #2f7a5c;
+  --kept-dim: #c3dbcf;
+  --slipped: #a33d2b;
   --allowed: #8a6a1f;
-  --empty: #ebe3d4;
+  --empty: #e9e3d8;
 
-  --kept-field: #7faa93;
-  --on-kept: #fffcf6;
+  --kept-field: #7fae95;
+  --on-kept: #fffdf9;
   --slip-chart: color-mix(in srgb, var(--slipped) 78%, var(--ground));
   --slip-bar: color-mix(in srgb, var(--slipped) 88%, var(--ground));
 
-  --accent-verdigris: #2f6b53;
-  --accent-brass: #8a6a1f;
-  --accent-madder: #9c3627;
-  --accent-indigo: #3f4e8a;
-  --accent-moss: #5a6c2a;
-  --accent-iron: #5d6773;
-  --accent-plum: #6e3c5c;
-  --accent-cobalt: #2a6680;
+  --lift: 0 16px 40px -14px rgb(60 45 30 / 0.3);
+}
+
+/* ── A habit's own colour ───────────────────────────────────────────────── */
+
+/* Anything carrying a habit's colour gets `.tinted` and a --habit value, and
+ * derives the rest from it here. The derivations have to live on the same
+ * element as --habit rather than on :root: a custom property is resolved
+ * against the element it is declared on, so a :root rule would mix against the
+ * fallback colour and every habit would come out the same.
+ *
+ * The amounts are deliberately small. The wash is there so a card can be told
+ * apart at a glance in a list of six, not so that it looks painted. */
+.tinted {
+  --habit-ink: var(--habit);
+  --habit-wash: color-mix(in srgb, var(--habit) 7%, var(--surface));
+  --habit-edge: color-mix(in srgb, var(--habit) 24%, var(--line));
+  --habit-mark: color-mix(in srgb, var(--habit) 20%, var(--surface));
+  --habit-soft: color-mix(in srgb, var(--habit) 14%, transparent);
+}
+
+/* On paper a mid-tone colour that reads clearly against near-black is too pale
+ * to carry text or a thin rule, so the ink it is used as gets darkened. The
+ * fills are mixed towards the page instead, for the same reason as the slip
+ * pigment above. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .tinted {
+    --habit-ink: color-mix(in srgb, var(--habit) 82%, #241c16);
+    --habit-wash: color-mix(in srgb, var(--habit) 8%, var(--surface));
+    --habit-edge: color-mix(in srgb, var(--habit) 34%, var(--line));
+    --habit-mark: color-mix(in srgb, var(--habit) 18%, var(--surface));
+  }
+}
+
+:root[data-theme="light"] .tinted {
+  --habit-ink: color-mix(in srgb, var(--habit) 82%, #241c16);
+  --habit-wash: color-mix(in srgb, var(--habit) 8%, var(--surface));
+  --habit-edge: color-mix(in srgb, var(--habit) 34%, var(--line));
+  --habit-mark: color-mix(in srgb, var(--habit) 18%, var(--surface));
 }

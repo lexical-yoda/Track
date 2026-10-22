@@ -8,8 +8,9 @@
 
 import { useState, type CSSProperties } from "react";
 import { todayIso } from "../lib/format";
-import { ACCENTS, type Accent, type Habit, type HabitPayload, type Kind } from "../lib/types";
-import { Button, Field, Notice, Segmented, Sheet, Switch } from "./ui";
+import { colorName, DEFAULT_COLOR, habitMark, PALETTE, SYMBOLS } from "../lib/palette";
+import type { Habit, HabitPayload, Kind } from "../lib/types";
+import { Button, Field, Glyph, Mark, Notice, Segmented, Sheet, Switch } from "./ui";
 
 interface HabitSheetProps {
   habit: Habit | null;
@@ -22,7 +23,8 @@ interface HabitSheetProps {
 export function HabitSheet({ habit, onSave, onArchive, onDelete, onClose }: HabitSheetProps) {
   const [name, setName] = useState(habit?.name ?? "");
   const [kind, setKind] = useState<Kind>(habit?.kind ?? "negative");
-  const [accent, setAccent] = useState<Accent>(habit?.accent ?? "verdigris");
+  const [color, setColor] = useState(habit?.color ?? DEFAULT_COLOR);
+  const [icon, setIcon] = useState(habit?.icon ?? "");
   const [startDate, setStartDate] = useState(habit?.start_date ?? todayIso());
   const [targetPerWeek, setTargetPerWeek] = useState(habit?.target_per_week ?? 7);
   const [allowsPlanned, setAllowsPlanned] = useState(habit?.allows_planned ?? false);
@@ -59,7 +61,8 @@ export function HabitSheet({ habit, onSave, onArchive, onDelete, onClose }: Habi
       onSave({
         name: name.trim(),
         kind,
-        accent,
+        icon: icon.trim(),
+        color,
         start_date: startDate,
         target_per_week: negative ? null : targetPerWeek,
         allows_planned: negative ? allowsPlanned : false,
@@ -101,6 +104,15 @@ export function HabitSheet({ habit, onSave, onArchive, onDelete, onClose }: Habi
           />
         </Field>
       )}
+
+      <LookPicker
+        name={name}
+        kind={kind}
+        color={color}
+        icon={icon}
+        onColor={setColor}
+        onIcon={setIcon}
+      />
 
       <Field
         label={negative ? "Quit date" : "Tracking from"}
@@ -149,23 +161,6 @@ export function HabitSheet({ habit, onSave, onArchive, onDelete, onClose }: Habi
         />
       </Field>
 
-      <Field label="Colour">
-        <div className="swatches" role="radiogroup" aria-label="Colour">
-          {ACCENTS.map((option) => (
-            <button
-              key={option}
-              type="button"
-              role="radio"
-              aria-checked={option === accent}
-              aria-label={option}
-              className={`swatch${option === accent ? " is-on" : ""}`}
-              style={{ "--swatch": `var(--accent-${option})` } as CSSProperties}
-              onClick={() => setAccent(option)}
-            />
-          ))}
-        </div>
-      </Field>
-
       <Field label="Why" hint="Optional. Worth reading back on a bad day.">
         <textarea
           className="input input--area"
@@ -210,5 +205,114 @@ export function HabitSheet({ habit, onSave, onArchive, onDelete, onClose }: Habi
         ) : null}
       </div>
     </Sheet>
+  );
+}
+
+interface LookPickerProps {
+  name: string;
+  kind: Kind;
+  color: string;
+  icon: string;
+  onColor: (color: string) => void;
+  onIcon: (icon: string) => void;
+}
+
+/** The colour and the symbol, picked together under a live preview.
+ *
+ * They are one control rather than two fields because they are never read
+ * apart: the symbol sits in a well tinted with the colour, and a symbol that
+ * works against one colour can disappear against another. The preview is the
+ * habit's own card header at the size it will actually be drawn.
+ */
+function LookPicker({ name, kind, color, icon, onColor, onIcon }: LookPickerProps) {
+  const preview = { icon, name: name.trim() === "" ? (kind === "negative" ? "Smoking" : "Gym") : name };
+
+  return (
+    <div
+      className="field tinted"
+      style={{ "--habit": color } as CSSProperties}
+    >
+      <span className="field__label">Colour and symbol</span>
+
+      <div className="picker">
+        <div className="picker__preview">
+          <Mark habit={preview} size="lg" />
+          <span className="picker__caption">
+            <span className="picker__name">{preview.name}</span>
+            <span className="label">{colorName(color)}</span>
+          </span>
+
+          {/* The system colour well. It sits with the preview rather than at
+              the end of the suggested colours, where it was left stranded on a
+              row of its own whenever the grid wrapped evenly. */}
+          <label className="picker__well" title="Any other colour">
+            <Glyph name="dropper" size={16} />
+            <input
+              type="color"
+              value={color}
+              aria-label="Any other colour"
+              onChange={(event) => onColor(event.target.value.toUpperCase())}
+            />
+          </label>
+        </div>
+
+        <div className="swatches" role="radiogroup" aria-label="Colour">
+          {PALETTE.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={option.value.toLowerCase() === color.toLowerCase()}
+              aria-label={option.name}
+              title={option.name}
+              className={`swatch${option.value.toLowerCase() === color.toLowerCase() ? " is-on" : ""}`}
+              style={{ "--swatch": option.value } as CSSProperties}
+              onClick={() => onColor(option.value)}
+            />
+          ))}
+        </div>
+
+        <div className="symbols" role="radiogroup" aria-label="Symbol">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={icon.trim() === ""}
+            aria-label="No symbol"
+            title="No symbol — the first letter of the name"
+            className={`symbol symbol--none${icon.trim() === "" ? " is-on" : ""}`}
+            onClick={() => onIcon("")}
+          >
+            {habitMark({ icon: "", name: preview.name })}
+          </button>
+          {SYMBOLS.map((option) => (
+            <button
+              key={option}
+              type="button"
+              role="radio"
+              aria-checked={option === icon}
+              aria-label={option}
+              className={`symbol${option === icon ? " is-on" : ""}`}
+              onClick={() => onIcon(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+
+        <input
+          className="input"
+          value={icon}
+          maxLength={16}
+          placeholder="Or type any emoji or character"
+          aria-label="Symbol"
+          onChange={(event) => onIcon(event.target.value)}
+        />
+      </div>
+
+      <span className="field__hint">
+        The colour marks this habit everywhere it appears, and fills its days on the
+        chart. Leave the symbol blank to show the first letter of the name instead.
+      </span>
+    </div>
   );
 }

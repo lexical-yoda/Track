@@ -170,10 +170,6 @@ export function describeState(state: DayState): string {
   return STATE_WORDS[state];
 }
 
-export function accentVar(accent: string): string {
-  return `var(--accent-${accent})`;
-}
-
 /** A unit matched to its amount: "1 cigarette", "2 cigarettes".
  *
  * Units are free text typed by the user, so this only drops a trailing "s" for

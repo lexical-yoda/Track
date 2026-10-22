@@ -68,8 +68,13 @@ CREATE TABLE IF NOT EXISTS habits (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
     name             TEXT    NOT NULL,
     kind             TEXT    NOT NULL CHECK (kind IN ('positive', 'negative')),
-    icon             TEXT    NOT NULL DEFAULT 'circle',
-    accent           TEXT    NOT NULL DEFAULT 'verdigris',
+    -- The symbol shown on the habit, as typed: an emoji, or any single
+    -- character. Empty means "use the first letter of the name".
+    icon             TEXT    NOT NULL DEFAULT '',
+    -- The habit's colour as #RRGGBB. Free-form rather than a name from a fixed
+    -- list, because the picker offers a native colour well alongside the
+    -- suggested palette.
+    color            TEXT    NOT NULL DEFAULT '#3FA87B',
     -- For a negative habit this is the quit date, and the clean counter runs from
     -- it. For a positive habit it is the day tracking began; days before it are
     -- untracked rather than missed.
@@ -143,10 +148,49 @@ CREATE INDEX IF NOT EXISTS idx_login_attempts ON login_attempts (ip, at);
 
 DEFAULT_REASONS = ["Party", "Stress", "Travel", "Boredom", "Social", "Celebration"]
 
+# The named accents habits used to carry, mapped onto the hex palette that
+# replaced them. The names were a closed list, which meant the colour picker
+# could only ever offer eight choices; the column now holds the colour itself.
+_LEGACY_ACCENTS = {
+    "verdigris": "#3FA87B",
+    "brass": "#D4A32E",
+    "madder": "#E2574C",
+    "indigo": "#4F77D0",
+    "moss": "#A9B23F",
+    "iron": "#7E8894",
+    "plum": "#A862C9",
+    "cobalt": "#3B93C6",
+}
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Bring an existing database up to the current schema.
+
+    Each step is written so that running it twice is harmless, because this runs
+    on every start rather than from a version table.
+    """
+    columns = {row["name"] for row in conn.execute("PRAGMA table_info(habits)")}
+
+    if "accent" in columns and "color" not in columns:
+        conn.execute("ALTER TABLE habits RENAME COLUMN accent TO color")
+        for name, hex_value in _LEGACY_ACCENTS.items():
+            conn.execute("UPDATE habits SET color = ? WHERE color = ?", (hex_value, name))
+        # Anything that was not one of the eight names cannot be read as a
+        # colour, so it falls back to the default rather than breaking the UI.
+        conn.execute(
+            "UPDATE habits SET color = ? WHERE color NOT LIKE '#______'",
+            ("#3FA87B",),
+        )
+
+    # 'circle' was the only icon ever stored, and it was never drawn. An empty
+    # icon now means the habit shows the first letter of its name.
+    conn.execute("UPDATE habits SET icon = '' WHERE icon = 'circle'")
+
 
 def init_db() -> None:
     conn = get_conn()
     conn.executescript(SCHEMA)
+    _migrate(conn)
     existing = conn.execute("SELECT COUNT(*) AS n FROM reasons").fetchone()["n"]
     if existing == 0:
         from .util import now_iso

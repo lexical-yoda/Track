@@ -1,26 +1,5 @@
 export type Kind = "positive" | "negative";
 
-export type Accent =
-  | "verdigris"
-  | "brass"
-  | "madder"
-  | "indigo"
-  | "moss"
-  | "iron"
-  | "plum"
-  | "cobalt";
-
-export const ACCENTS: Accent[] = [
-  "verdigris",
-  "brass",
-  "madder",
-  "indigo",
-  "moss",
-  "iron",
-  "plum",
-  "cobalt",
-];
-
 export type DayState =
   | "clean"
   | "planned"
@@ -33,8 +12,10 @@ export interface Habit {
   id: number;
   name: string;
   kind: Kind;
+  /** The symbol shown on the habit: an emoji, a character, or "" for none. */
   icon: string;
-  accent: Accent;
+  /** The habit's own colour, as #RRGGBB. */
+  color: string;
   start_date: string;
   target_per_week: number | null;
   allows_planned: boolean;
@@ -149,7 +130,8 @@ export interface EntryPayload {
 export interface HabitPayload {
   name: string;
   kind: Kind;
-  accent: Accent;
+  icon: string;
+  color: string;
   start_date: string;
   target_per_week?: number | null;
   allows_planned?: boolean;

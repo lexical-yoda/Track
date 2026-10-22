@@ -1,7 +1,7 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { CellLegend, Heatmap } from "../components/cells";
 import { LogSheet } from "../components/LogSheet";
-import { Button, Glyph, Notice, Spinner } from "../components/ui";
+import { Button, Glyph, Mark, Notice, Spinner } from "../components/ui";
 import {
   daysAgo,
   describeDuration,
@@ -12,6 +12,7 @@ import {
   spansAMonth,
   withUnit,
 } from "../lib/format";
+import { habitStyle } from "../lib/palette";
 import type { Entry, EntryPayload, Habit, HabitDetail as Detail, Summary } from "../lib/types";
 
 interface HabitDetailProps {
@@ -45,11 +46,12 @@ export function HabitDetail({
   const byDate = new Map(detail.entries.map((entry) => [entry.date, entry]));
 
   return (
-    <div style={{ "--accent": `var(--accent-${detail.accent})` } as CSSProperties}>
+    <div className="tinted" style={habitStyle(detail)}>
       <header className="screen__head screen__head--detail">
         <button type="button" className="iconbtn" onClick={onBack} aria-label="Back to today">
           <Glyph name="back" />
         </button>
+        <Mark habit={detail} size="lg" />
         <div>
           <p className="marker">{negative ? "avoiding" : "keeping up"}</p>
           <h1 className="screen__title">{detail.name}</h1>

@@ -2,6 +2,8 @@
  * interaction (log a day) and everything else is a form field. */
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { habitMark } from "../lib/palette";
+import type { Habit } from "../lib/types";
 
 interface ButtonProps {
   children: ReactNode;
@@ -34,6 +36,29 @@ export function Button({
     >
       {children}
     </button>
+  );
+}
+
+/** A habit's symbol in a well tinted with its colour.
+ *
+ * The well is always drawn, even for a habit with no symbol, so that a list of
+ * habits keeps one left edge and a habit without a symbol does not read as a
+ * hole. What goes in it falls back to the first letter of the name.
+ *
+ * The element this is rendered inside must carry the habit's colour and the
+ * `tinted` class; `habitStyle` returns the style for it.
+ */
+export function Mark({
+  habit,
+  size = "md",
+}: {
+  habit: Pick<Habit, "icon" | "name">;
+  size?: "sm" | "md" | "lg";
+}) {
+  return (
+    <span className={`mark${size === "md" ? "" : ` mark--${size}`}`} aria-hidden="true">
+      {habitMark(habit)}
+    </span>
   );
 }
 
@@ -198,7 +223,8 @@ type GlyphName =
   | "check"
   | "up"
   | "down"
-  | "forward";
+  | "forward"
+  | "dropper";
 
 const PATHS: Record<GlyphName, string> = {
   close: "M5 5l10 10M15 5L5 15",
@@ -211,6 +237,8 @@ const PATHS: Record<GlyphName, string> = {
   up: "M10 16V5M5 10l5-5 5 5",
   down: "M10 4v11M15 10l-5 5-5-5",
   forward: "M8 4l7 6-7 6",
+  // The colour well: a nib with a drop coming off it.
+  dropper: "M13.5 3.5l3 3M14 6l-7 7-2.5.5L5 11l7-7a1.4 1.4 0 012 0 1.4 1.4 0 010 2zM10 16h6",
 };
 
 export function Glyph({ name, size = 20 }: { name: GlyphName; size?: number }) {

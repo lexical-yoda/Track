@@ -11,7 +11,7 @@
 .app__main {
   flex: 1;
   width: 100%;
-  max-width: 54rem;
+  max-width: 52rem;
   margin: 0 auto;
   padding: var(--s5) var(--s4) calc(var(--s7) + env(safe-area-inset-bottom) + 3.5rem);
 }
@@ -35,14 +35,11 @@
   padding: var(--s4);
 }
 
-/* The masthead. Every screen carries the same one — a small marker naming the
- * page's context, the title under it, and a rule drawn beneath both. The rule
- * is what makes the page read as printed: the title sits on it rather than
- * floating above the content. */
+/* The masthead: a marker naming the page's context, and the title under it.
+ * No rule beneath — the cards below have their own edges, and a line across
+ * the top of a screen of rounded surfaces reads as a leftover. */
 .screen__head {
   margin-bottom: var(--s5);
-  padding-bottom: var(--s4);
-  border-bottom: 1px solid var(--rule);
   animation: head-in var(--t-travel) var(--ease-out);
 }
 
@@ -53,7 +50,7 @@
 
 .screen__head--detail {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
   gap: var(--s3);
 }
@@ -69,12 +66,12 @@
 }
 
 .screen__title {
-  font-family: var(--face-figure);
-  font-size: var(--text-lg);
-  font-weight: 500;
-  letter-spacing: var(--track-tight);
-  line-height: 1.2;
-  margin-top: 1px;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-title);
+  letter-spacing: var(--track-figure);
+  line-height: 1.15;
+  margin-top: 2px;
+  text-wrap: balance;
 }
 
 .screen__foot {
@@ -82,7 +79,9 @@
 }
 
 /* The tab bar is the only fixed chrome. On a desktop it stays at the bottom
- * rather than moving to the top, so the two layouts share one mental model. */
+ * rather than moving to the top, so the two layouts share one mental model.
+ * It is the one element besides a sheet that genuinely floats above the page,
+ * so it is the one element besides a sheet that carries a shadow. */
 .tabs {
   position: fixed;
   inset: auto 0 0 0;
@@ -90,54 +89,38 @@
   display: flex;
   justify-content: center;
   gap: var(--s1);
-  padding: var(--s1) var(--s2) calc(var(--s1) + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--ground) 92%, transparent);
+  padding: var(--s2) var(--s3) calc(var(--s2) + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--ground) 86%, transparent);
   /* Real layering: content scrolls under this fixed bar, and an opaque bar
      would cut the page off rather than letting it run behind.
      avoid-ai-design-ignore: K3 */
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--rule);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line);
 }
 
 .tabs__tab {
-  position: relative;
   flex: 1;
-  max-width: 8rem;
+  max-width: 7.5rem;
   min-height: var(--tap);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: var(--s1);
+  gap: 3px;
+  padding: var(--s1) var(--s2);
   border-radius: var(--radius);
   color: var(--ink-faint);
   font-size: var(--text-xs);
-  letter-spacing: 0.02em;
-  transition: color var(--t-settle) var(--ease);
+  font-weight: var(--weight-label);
+  transition: color var(--t-settle) var(--ease), background var(--t-settle) var(--ease);
 }
 
-/* The current tab is marked by a short rule above it rather than by a pill
- * behind it — the same way a column is marked anywhere else in the app. */
-.tabs__tab::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 1.25rem;
-  border-top: 2px solid var(--kept);
-  transform: translateX(-50%) scaleX(0);
-  opacity: 0;
-  transition: transform var(--t-settle) var(--ease-out), opacity var(--t-settle) var(--ease);
-}
-
+/* The current tab is filled rather than underlined. A tab bar is the one place
+ * in the app where the mark has to survive being glanced at sideways in the
+ * dark, and a 2px rule above a 12px label does not. */
 .tabs__tab.is-on {
   color: var(--ink);
-}
-
-.tabs__tab.is-on::before {
-  transform: translateX(-50%) scaleX(1);
-  opacity: 1;
+  background: var(--surface-raised);
 }
 
 .tabs__tab.is-on .glyph {
@@ -148,25 +131,16 @@
   background: var(--surface);
 }
 
-/* ── Groups and bands ───────────────────────────────────────────────────── */
+/* ── Groups and habit cards ─────────────────────────────────────────────── */
 
 .group {
   margin-bottom: var(--s6);
 }
 
-/* The name of a run of bands, with a rule running from it out to the right
- * margin: a column head in a printed table. */
+/* The name of a run of cards. It sits in the gutter above them, quiet, because
+ * the cards it names carry their own colour and do not need help being found. */
 .group__label {
-  display: flex;
-  align-items: center;
-  gap: var(--s3);
-  margin-bottom: var(--s3);
-}
-
-.group__label::after {
-  content: "";
-  flex: 1;
-  border-top: 1px solid var(--rule);
+  margin: 0 var(--s1) var(--s3);
 }
 
 .group__bands {
@@ -175,60 +149,73 @@
   gap: var(--s3);
 }
 
-/* A band is a ruled row in the ledger. The accent is a single edge, not a fill:
- * it identifies the habit without competing with the day cells, which are the
- * only things in the app allowed to carry meaning through colour. */
+/* A habit card.
+ *
+ * The colour and the symbol on it are the habit's own, picked by the person
+ * tracking it, and they are the only decoration in the app that is also data:
+ * in a list of six habits they are how you find the one you came for. The wash
+ * is kept to a few percent, so six cards still read as one surface and not as
+ * a paint chart. */
 .band {
   position: relative;
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent, var(--rule-strong));
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: border-color var(--t-settle) var(--ease);
+  background: var(--habit-wash, var(--surface));
+  border: 1px solid var(--habit-edge, var(--line));
+  border-radius: var(--radius-lg);
+  padding: var(--s4);
+  transition: border-color var(--t-settle) var(--ease), background var(--t-settle) var(--ease);
 }
 
 .band:hover {
-  border-top-color: var(--rule-strong);
-  border-right-color: var(--rule-strong);
-  border-bottom-color: var(--rule-strong);
+  border-color: color-mix(in srgb, var(--habit, var(--ink)) 42%, var(--line));
 }
 
 .band__head {
   width: 100%;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--s3);
-  padding: var(--s3) var(--s4) var(--s2);
   text-align: left;
-  transition: background var(--t-press) var(--ease);
+  border-radius: var(--radius-sm);
+  transition: opacity var(--t-press) var(--ease);
 }
 
 .band__head:hover {
-  background: var(--surface-raised);
-}
-
-.band__head:active {
-  background: var(--surface-raised);
+  opacity: 0.82;
 }
 
 .band__name {
-  font-family: var(--face-figure);
+  flex: 1;
+  min-width: 0;
   font-size: var(--text-md);
-  font-weight: 500;
+  font-weight: var(--weight-title);
   letter-spacing: var(--track-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Phone: the run and the week sit on one row, with the figures ruled off
- * beneath them. Desktop: all three sit on the same row, because a band 54rem
- * wide with only two things on it is a hollow row rather than a ledger line. */
+/* What kind of habit it is, as a chip rather than as a word floating at the
+ * right edge: at the end of a long name the two used to run together. */
+.band__kind {
+  flex-shrink: 0;
+  padding: 3px var(--s2);
+  border-radius: var(--radius-pill);
+  background: var(--habit-mark, var(--surface-raised));
+  color: var(--habit-ink, var(--ink-muted));
+  font-size: var(--text-xs);
+  font-weight: var(--weight-label);
+  white-space: nowrap;
+}
+
+/* Phone: the run and the week sit on one row, with the figures beneath them.
+ * Desktop: all three sit on the same row, because a card 52rem wide with only
+ * two things on it is a hollow row. */
 .band__body {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: var(--s4);
-  padding: 0 var(--s4) var(--s3);
+  margin-top: var(--s4);
 }
 
 .band__figure {
@@ -236,7 +223,7 @@
   grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--s1);
+  gap: 3px;
   min-width: 4rem;
 }
 
@@ -248,17 +235,19 @@
 .band__unit {
   white-space: nowrap;
   line-height: 1.2;
+  color: var(--ink-muted);
 }
 
-/* The run said as a length, on its own line under the figure and the week.
- * It is the quietest thing on the band: the count above it is the figure that
- * moves, and this only says what that count comes to. */
+/* The run said as a length, under the figure and the week. It is the quietest
+ * thing on the card: the count above it is the figure that moves, and this
+ * only says what that count comes to. */
 .band__span {
   grid-column: 1 / -1;
   grid-row: 2;
   margin-top: var(--s2);
+  font-size: var(--text-xs);
   line-height: 1.3;
-  color: color-mix(in srgb, var(--ink-faint) 85%, var(--ground));
+  color: var(--ink-faint);
 }
 
 .band__week {
@@ -277,18 +266,16 @@
   grid-row: 3;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr));
-  gap: var(--s2);
-  /* Pulled back out to the band's own edges so the rule above it reads as a
-   * ledger rule running the width of the row, not as an inset divider. */
-  margin: var(--s3) calc(var(--s4) * -1) 0;
-  padding: var(--s3) var(--s4) 0;
-  border-top: 1px solid var(--rule-hair);
+  gap: var(--s3) var(--s2);
+  margin-top: var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--line-hair);
 }
 
 .band__meta div {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -298,13 +285,21 @@
 
 .band__meta dd {
   margin: 0;
-  font-family: var(--face-figure);
   font-variant-numeric: tabular-nums;
   font-size: var(--text-sm);
+  font-weight: var(--weight-label);
   letter-spacing: var(--track-tight);
   white-space: nowrap;
 }
 
+/* The one action on the card, and the only thing on the Today screen that is
+ * drawn as a button: everything else is the record.
+ *
+ * It is deliberately not drawn in the habit's colour. Logging a slip is the
+ * ordinary thing this app is for, and a habit whose colour is red — which a
+ * habit about smoking very often is — turned the button into something that
+ * looked like a warning about pressing it. The habit's colour identifies the
+ * card; it does not get to tell you how to feel about the button on it. */
 .band__action {
   width: 100%;
   min-height: var(--tap);
@@ -312,40 +307,87 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--s3);
+  margin-top: var(--s4);
   padding: var(--s2) var(--s4);
-  border-top: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  color: var(--ink);
   text-align: left;
   font-size: var(--text-sm);
-  color: var(--ink-muted);
-  transition: background var(--t-press) var(--ease), color var(--t-press) var(--ease);
+  font-weight: var(--weight-label);
+  transition: background var(--t-press) var(--ease), color var(--t-press) var(--ease),
+    transform var(--t-press) var(--ease);
 }
 
 .band__action .glyph {
   color: var(--ink-faint);
-  transition: color var(--t-press) var(--ease), transform var(--t-settle) var(--ease-out);
+  transition: transform var(--t-settle) var(--ease-out);
 }
 
 .band__action:hover {
-  background: var(--surface-raised);
-  color: var(--ink);
+  background: color-mix(in srgb, var(--habit, var(--ink)) 16%, var(--surface-raised));
 }
 
 .band__action:hover .glyph {
-  color: var(--ink-muted);
   transform: translateX(2px);
 }
 
 .band__action:active {
-  background: var(--rule-hair);
+  transform: scale(0.99);
 }
 
+/* Once today is logged the button has nothing left to offer, so it stops
+ * looking like an offer and becomes a line of record you can still tap. */
 .band__action.is-logged {
-  color: var(--ink-faint);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
 }
 
 .band__action.is-logged .glyph {
   color: var(--kept);
+  opacity: 1;
   transform: none;
+}
+
+.band__action.is-logged:hover {
+  background: var(--surface-raised);
+}
+
+/* ── The habit's mark ───────────────────────────────────────────────────── */
+
+/* The symbol the habit was given, in a tinted well. Where none was picked it
+ * falls back to the first letter of the name, so the shape of the row is the
+ * same either way and a habit never has a hole where its mark should be. */
+.mark {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius);
+  background: var(--habit-mark, var(--surface-raised));
+  color: var(--habit-ink, var(--ink));
+  font-size: 1.125rem;
+  line-height: 1;
+  /* An emoji is drawn by the system's colour font and ignores `color`; a
+   * fallback letter is set in the habit's own colour instead. */
+  font-weight: var(--weight-title);
+  user-select: none;
+}
+
+.mark--lg {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius);
+  font-size: 1.375rem;
+}
+
+.mark--sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
 }
 
 /* ── The day cell, and the two things built from it ─────────────────────── */
@@ -354,14 +396,20 @@
   display: block;
   width: var(--cell);
   height: var(--cell);
-  border-radius: 2px;
+  border-radius: var(--cell-radius);
   background: var(--empty);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ground) 40%, transparent);
 }
 
-.cell--clean,
-.cell--done {
+.cell--clean {
   background: var(--kept);
+}
+
+/* A day *done* is the event on a positive habit, so it is drawn in that
+ * habit's own colour. A day *clean* is the absence of an event on a negative
+ * one, and stays verdigris: a clean run drawn in the colour someone picked for
+ * smoking would read as an alarm. */
+.cell--done {
+  background: var(--habit, var(--kept));
 }
 
 .cell--slip {
@@ -380,7 +428,7 @@
  * to a habit's start reads as absent rather than failed. */
 .cell--untracked {
   background: var(--untracked);
-  box-shadow: inset 0 0 0 1px var(--rule);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 
 button.cell {
@@ -398,7 +446,7 @@ button.cell:active {
 
 /* The week strip is the same cell at a comfortable tap size.
  *
- * The cells are sized by the space the band has left rather than fixed, and
+ * The cells are sized by the space the card has left rather than fixed, and
  * capped so they stop growing once they are comfortable. Seven fixed cells
  * plus the run beside them need more width than a 320px phone has, and the
  * seventh day was being cut off the right edge. */
@@ -413,28 +461,30 @@ button.cell:active {
   /* The basis is the comfortable size, so the strip asks for its full width
    * wherever there is room — including a grid column sized to its content,
    * which a basis of 0 would collapse to nothing. It shrinks from there when
-   * the band is narrow, and never grows past the cap. */
+   * the card is narrow, and never grows past the cap. */
   flex: 1 1 var(--strip-cell-max);
   min-width: 0;
   max-width: var(--strip-cell-max);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s1);
-  padding-bottom: 6px;
+  gap: 5px;
+  padding-bottom: 8px;
 }
 
-/* Today is marked with a tick below the cell rather than a ring around it: a
+/* Today is marked with a dot below the cell rather than a ring around it: a
  * ring would compete with the cell's own colour, which is the one thing here
  * that carries meaning. */
 .strip__day--today::after {
   content: "";
   position: absolute;
   bottom: 0;
-  left: 25%;
-  right: 25%;
-  border-top: 2px solid var(--ink-muted);
-  border-radius: 1px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+  transform: translateX(-50%);
 }
 
 .strip__day--today .strip__letter {
@@ -443,6 +493,7 @@ button.cell:active {
 
 .strip__letter {
   font-size: var(--text-xs);
+  font-weight: var(--weight-label);
   color: var(--ink-faint);
   line-height: 1;
   transition: color var(--t-settle) var(--ease);
@@ -456,12 +507,20 @@ button.cell:active {
   max-width: 100%;
   height: auto;
   aspect-ratio: 1;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
+}
+
+/* An empty day in the strip is a slot waiting to be filled, not a mark, so it
+ * is drawn as an outline rather than as a block of colour. */
+.strip .cell--missed,
+.strip .cell--untracked {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
 .strip button.cell:hover {
   transform: none;
-  box-shadow: inset 0 0 0 1px var(--ink-faint);
+  box-shadow: inset 0 0 0 2px var(--ink-faint);
 }
 
 .strip button.cell:active {
@@ -503,7 +562,6 @@ button.cell:active {
   grid-auto-columns: var(--cell);
   font-size: var(--text-xs);
   color: var(--ink-faint);
-  letter-spacing: 0.02em;
   margin-bottom: var(--s2);
 }
 
@@ -546,15 +604,22 @@ button.cell:active {
 
 /* ── The counter ────────────────────────────────────────────────────────── */
 
+/* The run, as the first and largest thing on a habit's own screen. It sits on
+ * a surface of its own rather than on the page, so the figure has somewhere to
+ * stand and the stats below it read as a second block rather than as more of
+ * the same column. */
 .counter {
-  padding: var(--s5) 0 var(--s5);
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: var(--s5);
+  padding: var(--s5);
+  margin-bottom: var(--s4);
+  background: var(--habit-wash, var(--surface));
+  border: 1px solid var(--habit-edge, var(--line));
+  border-radius: var(--radius-lg);
 }
 
-/* The counter is always the "kept" pigment, never the habit's accent. A clean
- * run shown in madder reads as an alarm, which is the one thing this screen
- * must not do — and the accent for a habit about smoking is very often red. */
+/* The counter is always the "kept" pigment, never the habit's own colour. A
+ * clean run shown in madder reads as an alarm, which is the one thing this
+ * screen must not do — and the colour picked for a habit about smoking is very
+ * often red. */
 .counter__value {
   font-size: var(--figure-lg);
   display: block;
@@ -581,13 +646,13 @@ button.cell:active {
 }
 
 .counter__since {
-  margin-top: var(--s1);
+  margin-top: var(--s2);
   color: var(--ink-faint);
   font-size: var(--text-xs);
 }
 
 /* The run towards the next milestone, set as a measure: where you are on the
- * left, the rule between, the mark you are heading for at the right end. */
+ * left, the bar between, the mark you are heading for at the right end. */
 .counter__next {
   margin-top: var(--s5);
   font-size: var(--text-xs);
@@ -599,9 +664,9 @@ button.cell:active {
 
 .counter__bar {
   flex: 1;
-  height: 3px;
-  background: var(--rule);
-  border-radius: 2px;
+  height: 6px;
+  background: color-mix(in srgb, var(--kept) 16%, transparent);
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
@@ -609,7 +674,7 @@ button.cell:active {
   display: block;
   height: 100%;
   background: var(--kept);
-  border-radius: 2px;
+  border-radius: var(--radius-pill);
   transition: width var(--t-travel) var(--ease-out);
 }
 
@@ -620,20 +685,17 @@ button.cell:active {
 
 /* ── Stats, panels, charts ──────────────────────────────────────────────── */
 
-/* The summary figures are set as a ruled table rather than as tiles: each
- * figure sits under its own rule, which is how a printed table separates
- * columns and costs nothing in surfaces or shadows. */
+/* The summary figures, as a row of tiles. They are the one place in the app
+ * where a grid of small surfaces is the right shape: four unrelated numbers
+ * that are read one at a time, not compared down a column. */
 .stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0 var(--s4);
-  margin: 0 0 var(--s6);
+  gap: var(--s2);
+  margin: 0 0 var(--s5);
 }
 
-/* A short last row would otherwise leave its rule stopping half way across,
- * which reads as a broken rule rather than as the end of the table. The last
- * figure takes the rest of its row instead. The column count is written out
- * rather than auto-fit precisely so these can be counted. */
+/* A short last row would otherwise leave a tile stranded at half width. */
 .stats > div:last-child:nth-child(odd) {
   grid-column: span 2;
 }
@@ -641,9 +703,11 @@ button.cell:active {
 .stats div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--s3) 0;
-  border-top: 1px solid var(--rule-hair);
+  gap: 3px;
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
 .stats dt {
@@ -661,8 +725,8 @@ button.cell:active {
 }
 
 .panel {
-  padding: var(--s5) 0 var(--s4);
-  border-top: 1px solid var(--rule);
+  padding: var(--s5) 0 var(--s2);
+  border-top: 1px solid var(--line);
 }
 
 .panel:first-child {
@@ -678,7 +742,7 @@ button.cell:active {
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--s2) var(--s3);
-  margin-bottom: var(--s3);
+  margin-bottom: var(--s4);
 }
 
 .panel__head > .btn {
@@ -691,12 +755,17 @@ button.cell:active {
   margin-left: auto;
 }
 
+/* A row rather than a block, because a title can carry a habit's mark beside
+ * it and the mark is a grid of its own — left as inline content it drops the
+ * name onto a second line. */
 .panel__title {
-  font-family: var(--face-figure);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
   font-size: var(--text-md);
-  font-weight: 500;
+  font-weight: var(--weight-title);
   letter-spacing: var(--track-tight);
-  margin-bottom: var(--s3);
+  margin-bottom: var(--s4);
 }
 
 .panel__head .panel__title {
@@ -726,9 +795,9 @@ button.cell:active {
  * phone this does not fit beside the heading, which is where it used to run
  * off the right edge of the screen. */
 .panel__legend {
-  margin-top: var(--s3);
+  margin-top: var(--s4);
   padding-top: var(--s3);
-  border-top: 1px solid var(--rule-hair);
+  border-top: 1px solid var(--line-hair);
 }
 
 .panel__prose {
@@ -754,10 +823,10 @@ button.cell:active {
 
 .milestone {
   padding: var(--s1) var(--s3);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
   font-size: var(--text-xs);
-  font-family: var(--face-figure);
+  font-weight: var(--weight-label);
   font-variant-numeric: tabular-nums;
   color: var(--ink-muted);
 }
@@ -783,7 +852,7 @@ button.cell:active {
   left: 0;
   right: 0;
   top: var(--chart-h);
-  border-top: 1px solid var(--rule-strong);
+  border-top: 1px solid var(--line-strong);
   pointer-events: none;
 }
 
@@ -797,11 +866,11 @@ button.cell:active {
 }
 
 .chart--weekday {
-  --chart-h: 4.5rem;
+  --chart-h: 5rem;
 }
 
 .chart--month {
-  --chart-h: 3rem;
+  --chart-h: 3.25rem;
 }
 
 .chart__track {
@@ -815,9 +884,9 @@ button.cell:active {
 .chart__bar {
   width: 62%;
   max-width: 1.75rem;
-  min-height: 2px;
-  background: var(--accent, var(--kept));
-  border-radius: 2px 2px 0 0;
+  min-height: 3px;
+  background: var(--habit, var(--kept));
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   animation: bar-rise var(--t-travel) var(--ease-out);
   transform-origin: bottom;
 }
@@ -847,7 +916,6 @@ button.cell:active {
 }
 
 .chart__value {
-  font-family: var(--face-figure);
   color: color-mix(in srgb, var(--ink-faint) 80%, var(--ground));
 }
 
@@ -875,9 +943,9 @@ button.cell:active {
 }
 
 .bars__track {
-  height: 8px;
-  background: color-mix(in srgb, var(--empty) 70%, var(--ground));
-  border-radius: 2px;
+  height: 10px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
@@ -885,7 +953,7 @@ button.cell:active {
   display: block;
   height: 100%;
   background: var(--slip-bar);
-  border-radius: 2px;
+  border-radius: var(--radius-pill);
   transform-origin: left;
   animation: bar-grow var(--t-travel) var(--ease-out);
 }
@@ -897,7 +965,6 @@ button.cell:active {
 
 .bars__value {
   text-align: right;
-  font-family: var(--face-figure);
   font-variant-numeric: tabular-nums;
   color: var(--ink-faint);
   font-size: var(--text-xs);
@@ -911,6 +978,12 @@ button.cell:active {
   padding: 0;
 }
 
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
 /* Each logged day carries the same pigment as its cell, as a rail at the left
  * edge. It is the heatmap read as a list: the colour already means something,
  * so the list costs nothing to learn. */
@@ -918,38 +991,35 @@ button.cell:active {
   display: grid;
   gap: var(--s1);
   width: 100%;
-  padding: var(--s3) var(--s3) var(--s3) var(--s4);
-  margin-inline: calc(var(--s3) * -1);
-  border-bottom: 1px solid var(--rule-hair);
-  border-left: 2px solid transparent;
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius);
   text-align: left;
-  transition: background var(--t-press) var(--ease), border-left-color var(--t-settle) var(--ease);
+  transition: background var(--t-press) var(--ease), border-color var(--t-settle) var(--ease);
 }
 
 .log__row--slip {
-  border-left-color: var(--slip-bar);
+  border-left-color: var(--slipped);
 }
 
 .log__row--planned {
-  border-left-color: color-mix(in srgb, var(--allowed) 70%, var(--ground));
+  border-left-color: var(--allowed);
 }
 
 .log__row--done {
-  border-left-color: color-mix(in srgb, var(--kept) 70%, var(--ground));
+  border-left-color: var(--habit, var(--kept));
 }
 
 .log__row:hover {
-  background: var(--surface);
-}
-
-.log__row:active {
   background: var(--surface-raised);
 }
 
 .log__date {
-  font-family: var(--face-figure);
   font-variant-numeric: tabular-nums;
   font-size: var(--text-sm);
+  font-weight: var(--weight-label);
   letter-spacing: var(--track-tight);
 }
 
@@ -972,61 +1042,59 @@ button.cell:active {
 
 .tag {
   font-size: var(--text-xs);
-  padding: 1px var(--s2);
-  border-radius: 2px;
-  border: 1px solid var(--rule-strong);
+  padding: 2px var(--s2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
   color: var(--ink-faint);
 }
 
 .tag--planned {
-  border-color: color-mix(in srgb, var(--allowed) 60%, transparent);
+  background: color-mix(in srgb, var(--allowed) 18%, transparent);
   color: var(--allowed);
 }
 
 .tag--amount {
   font-variant-numeric: tabular-nums;
-  font-family: var(--face-figure);
 }
 
 .rows__row {
   display: flex;
   align-items: center;
   gap: var(--s3);
-  border-bottom: 1px solid var(--rule-hair);
+  padding: var(--s2) var(--s3);
+  margin-inline: calc(var(--s3) * -1);
+  border-radius: var(--radius);
   transition: background var(--t-press) var(--ease);
+}
+
+.rows__row + .rows__row {
+  margin-top: 2px;
 }
 
 .rows__row:hover {
   background: var(--surface);
 }
 
-.rows__dot {
-  width: 3px;
-  align-self: stretch;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
 .rows__main {
   flex: 1;
   display: grid;
   gap: 2px;
-  padding: var(--s3) 0;
+  padding: var(--s2) 0;
   text-align: left;
   min-height: var(--tap);
+  align-content: center;
   min-width: 0;
 }
 
 .rows__name {
-  font-family: var(--face-figure);
   font-size: var(--text-base);
+  font-weight: var(--weight-label);
   letter-spacing: var(--track-tight);
 }
 
 .rows__move {
   display: flex;
   gap: var(--s1);
-  padding-right: var(--s1);
 }
 
 /* ── Controls ───────────────────────────────────────────────────────────── */
@@ -1037,17 +1105,18 @@ button.cell:active {
   justify-content: center;
   gap: var(--s2);
   min-height: var(--tap);
-  padding: var(--s2) var(--s4);
+  padding: var(--s2) var(--s5);
   border-radius: var(--radius);
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--line-strong);
   font-size: var(--text-sm);
+  font-weight: var(--weight-label);
   text-decoration: none;
   transition: background var(--t-press) var(--ease), border-color var(--t-press) var(--ease),
     transform var(--t-press) var(--ease);
 }
 
 .btn:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: scale(0.985);
 }
 
 .btn--full {
@@ -1066,12 +1135,16 @@ button.cell:active {
   /* The ink that reads on the kept pigment. It has to flip with the theme: on
    * paper the pigment is darkened to hold against white, and near-black text
    * on it would be two dark colours on top of each other. */
-  color: var(--on-kept, #0f1512);
+  color: var(--on-kept, #0c1310);
 }
 
 .btn--solid:hover {
   background: color-mix(in srgb, var(--kept) 88%, var(--ink));
   border-color: color-mix(in srgb, var(--kept) 88%, var(--ink));
+}
+
+.btn--outline {
+  background: var(--surface);
 }
 
 .btn--outline:hover {
@@ -1089,7 +1162,7 @@ button.cell:active {
 }
 
 .btn--danger {
-  border-color: color-mix(in srgb, var(--slipped) 70%, transparent);
+  border-color: color-mix(in srgb, var(--slipped) 55%, transparent);
   color: var(--slipped);
 }
 
@@ -1125,7 +1198,7 @@ button.cell:active {
 }
 
 .iconbtn:active:not(:disabled) {
-  background: var(--rule-hair);
+  background: var(--line-hair);
 }
 
 .iconbtn:disabled {
@@ -1136,12 +1209,13 @@ button.cell:active {
 .field {
   display: grid;
   gap: var(--s2);
-  margin-bottom: var(--s4);
+  margin-bottom: var(--s5);
 }
 
 .field__label {
   font-size: var(--text-sm);
-  color: var(--ink-muted);
+  font-weight: var(--weight-label);
+  color: var(--ink);
 }
 
 .field__hint {
@@ -1156,10 +1230,11 @@ button.cell:active {
   min-height: var(--tap);
   padding: var(--s2) var(--s3);
   background: var(--ground);
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius);
   font-size: var(--text-base);
-  transition: border-color var(--t-settle) var(--ease), background var(--t-settle) var(--ease);
+  transition: border-color var(--t-settle) var(--ease), background var(--t-settle) var(--ease),
+    box-shadow var(--t-settle) var(--ease);
 }
 
 .input:hover {
@@ -1170,6 +1245,7 @@ button.cell:active {
   outline: none;
   border-color: var(--kept);
   background: var(--surface);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kept) 20%, transparent);
 }
 
 .input--area {
@@ -1182,9 +1258,9 @@ button.cell:active {
 .segmented {
   display: flex;
   gap: 2px;
-  padding: 2px;
+  padding: 3px;
   background: var(--ground);
-  border: 1px solid var(--rule);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
 }
 
@@ -1192,8 +1268,9 @@ button.cell:active {
   flex: 1;
   min-height: 2.25rem;
   padding: var(--s1) var(--s2);
-  border-radius: 2px;
+  border-radius: calc(var(--radius) - 4px);
   font-size: var(--text-sm);
+  font-weight: var(--weight-label);
   color: var(--ink-faint);
   white-space: nowrap;
   transition: background var(--t-settle) var(--ease), color var(--t-settle) var(--ease);
@@ -1207,14 +1284,14 @@ button.cell:active {
 .segmented__option.is-on {
   background: var(--surface-raised);
   color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--rule-strong);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
 .switch {
   display: flex;
   align-items: flex-start;
   gap: var(--s3);
-  margin-bottom: var(--s4);
+  margin-bottom: var(--s5);
   cursor: pointer;
 }
 
@@ -1227,19 +1304,19 @@ button.cell:active {
 
 .switch__track {
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 1.5rem;
+  width: 2.75rem;
+  height: 1.625rem;
   margin-top: 1px;
-  border-radius: 1rem;
+  border-radius: var(--radius-pill);
   background: var(--empty);
-  box-shadow: inset 0 0 0 1px var(--rule-strong);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
   transition: background var(--t-settle) var(--ease), box-shadow var(--t-settle) var(--ease);
 }
 
 .switch__knob {
   display: block;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
   margin: 0.1875rem;
   border-radius: 50%;
   background: var(--ink-faint);
@@ -1247,12 +1324,12 @@ button.cell:active {
 }
 
 .switch input:checked + .switch__track {
-  background: color-mix(in srgb, var(--allowed) 30%, transparent);
+  background: color-mix(in srgb, var(--allowed) 32%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--allowed) 55%, transparent);
 }
 
 .switch input:checked + .switch__track .switch__knob {
-  transform: translateX(1rem);
+  transform: translateX(1.125rem);
   background: var(--allowed);
 }
 
@@ -1279,8 +1356,8 @@ button.cell:active {
   gap: var(--s1);
   min-height: 2.25rem;
   padding: var(--s1) var(--s3);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
   font-size: var(--text-sm);
   color: var(--ink-muted);
   transition: border-color var(--t-settle) var(--ease), color var(--t-settle) var(--ease),
@@ -1295,7 +1372,7 @@ button.cell:active {
 .chip.is-on {
   border-color: var(--allowed);
   color: var(--allowed);
-  background: color-mix(in srgb, var(--allowed) 10%, transparent);
+  background: color-mix(in srgb, var(--allowed) 12%, transparent);
 }
 
 .chip--static {
@@ -1308,26 +1385,103 @@ button.cell:active {
   width: 1.25rem;
   height: 1.25rem;
   color: var(--ink-faint);
-  border-radius: 2px;
-  transition: color var(--t-press) var(--ease);
+  border-radius: 50%;
+  transition: color var(--t-press) var(--ease), background var(--t-press) var(--ease);
 }
 
 .chip__remove:hover {
   color: var(--slipped);
+  background: color-mix(in srgb, var(--slipped) 14%, transparent);
+}
+
+/* ── Picking a colour and a symbol ──────────────────────────────────────── */
+
+/* The two pickers share a shape: a grid of choices at tap size, with the thing
+ * being chosen drawn at the size it will actually appear. Both end in a free
+ * choice — the system colour well, and a field that takes any character — so
+ * the grid is a shortcut rather than a limit. */
+.picker {
+  display: grid;
+  gap: var(--s3);
+}
+
+.picker__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3);
+  background: var(--habit-wash, var(--surface));
+  border: 1px solid var(--habit-edge, var(--line));
+  border-radius: var(--radius);
+}
+
+.picker__caption {
+  flex: 1;
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+/* The system colour well, at the end of the preview row. Picking from it sets
+ * the same value the suggestions do, so a hand-mixed colour is not a second
+ * class of colour anywhere else in the app. */
+.picker__well {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: var(--ink-muted);
+  cursor: pointer;
+  overflow: hidden;
+  transition: color var(--t-press) var(--ease), box-shadow var(--t-press) var(--ease);
+}
+
+.picker__well:hover {
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink-faint);
+}
+
+.picker__well input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.picker__well .glyph {
+  pointer-events: none;
+}
+
+.picker__name {
+  font-size: var(--text-base);
+  font-weight: var(--weight-title);
+  letter-spacing: var(--track-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .swatches {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(2.25rem, 1fr));
   gap: var(--s2);
 }
 
 .swatch {
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius);
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: var(--radius-sm);
   background: var(--swatch);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ground) 35%, transparent);
   transition: transform var(--t-press) var(--ease-out), box-shadow var(--t-settle) var(--ease);
 }
 
@@ -1335,11 +1489,52 @@ button.cell:active {
   transform: scale(1.08);
 }
 
-.swatch.is-on {
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--ground) 35%, transparent),
-    0 0 0 2px var(--surface),
-    0 0 0 3px var(--ink);
+/* The mark on the chosen swatch is drawn inside it rather than around it, so
+ * the grid does not reflow by a ring's width when the choice moves. */
+.swatch.is-on::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--surface), inset 0 0 0 4px var(--ink);
+}
+
+.symbols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(2.5rem, 1fr));
+  gap: var(--s1);
+  max-height: 11.5rem;
+  overflow-y: auto;
+  padding: var(--s2);
+  background: var(--ground);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  scrollbar-width: thin;
+}
+
+.symbol {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: background var(--t-press) var(--ease), transform var(--t-press) var(--ease-out);
+}
+
+.symbol:hover {
+  background: var(--surface-raised);
+  transform: scale(1.08);
+}
+
+.symbol.is-on {
+  background: var(--habit-mark, var(--surface-raised));
+  box-shadow: inset 0 0 0 2px var(--habit, var(--ink));
+}
+
+.symbol--none {
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
 }
 
 .inline-form {
@@ -1367,7 +1562,7 @@ button.cell:active {
 }
 
 .notice {
-  padding: var(--s2) var(--s3);
+  padding: var(--s3);
   border-radius: var(--radius);
   font-size: var(--text-sm);
   margin-bottom: var(--s3);
@@ -1375,13 +1570,13 @@ button.cell:active {
 }
 
 .notice--error {
-  border: 1px solid color-mix(in srgb, var(--slipped) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--slipped) 55%, transparent);
   color: var(--slipped);
   background: color-mix(in srgb, var(--slipped) 10%, transparent);
 }
 
 .notice--info {
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--line-strong);
   color: var(--ink-muted);
   background: var(--surface);
 }
@@ -1394,9 +1589,9 @@ button.cell:active {
 
 .spinner::after {
   content: "";
-  width: var(--cell);
-  height: var(--cell);
-  border-radius: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--cell-radius);
   background: var(--kept);
   animation: pulse 1.4s var(--ease) infinite;
 }
@@ -1413,22 +1608,25 @@ button.cell:active {
 }
 
 .empty {
-  padding: var(--s6) 0;
+  padding: var(--s6) var(--s5);
   display: grid;
   gap: var(--s3);
   justify-items: start;
-  max-width: 46ch;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }
 
 .empty__lead {
-  font-family: var(--face-figure);
   font-size: var(--text-md);
+  font-weight: var(--weight-title);
   letter-spacing: var(--track-tight);
 }
 
 .empty__body {
   font-size: var(--text-sm);
   color: var(--ink-muted);
+  max-width: 46ch;
   text-wrap: pretty;
 }
 
@@ -1441,7 +1639,7 @@ button.cell:active {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: color-mix(in srgb, #000 55%, transparent);
+  background: color-mix(in srgb, #000 58%, transparent);
   animation: fade var(--t-settle) var(--ease);
 }
 
@@ -1452,9 +1650,10 @@ button.cell:active {
   display: flex;
   flex-direction: column;
   background: var(--surface);
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--line-strong);
   border-bottom: none;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--lift);
   animation: rise var(--t-travel) var(--ease-out);
 }
 
@@ -1465,8 +1664,8 @@ button.cell:active {
   width: 2.25rem;
   height: 4px;
   margin: var(--s2) auto calc(var(--s2) * -1);
-  border-radius: 2px;
-  background: var(--rule-strong);
+  border-radius: var(--radius-pill);
+  background: var(--line-strong);
 }
 
 .sheet__head {
@@ -1474,14 +1673,12 @@ button.cell:active {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--s3);
-  padding: var(--s4);
-  border-bottom: 1px solid var(--rule);
+  padding: var(--s4) var(--s4) var(--s3);
 }
 
 .sheet__title {
-  font-family: var(--face-figure);
   font-size: var(--text-md);
-  font-weight: 500;
+  font-weight: var(--weight-title);
   letter-spacing: var(--track-tight);
   text-wrap: balance;
 }
@@ -1490,6 +1687,7 @@ button.cell:active {
   margin-top: var(--s1);
   font-size: var(--text-xs);
   color: var(--ink-faint);
+  text-wrap: pretty;
 }
 
 .sheet__close {
@@ -1498,19 +1696,20 @@ button.cell:active {
   width: 2rem;
   height: 2rem;
   margin: -0.25rem -0.25rem 0 0;
-  border-radius: var(--radius);
+  border-radius: 50%;
+  background: var(--surface-raised);
   color: var(--ink-faint);
   transition: background var(--t-press) var(--ease), color var(--t-press) var(--ease);
 }
 
 .sheet__close:hover {
   color: var(--ink);
-  background: var(--surface-raised);
+  background: var(--line);
 }
 
 .sheet__body {
   overflow-y: auto;
-  padding: var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
+  padding: var(--s3) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom));
 }
 
 .sheet__actions {
@@ -1543,18 +1742,17 @@ button.cell:active {
   max-width: 24rem;
   padding: var(--s5);
   background: var(--surface);
-  border: 1px solid var(--rule);
-  border-top: 2px solid var(--kept);
-  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--lift);
   animation: rise var(--t-travel) var(--ease-out);
 }
 
 .auth__title {
-  font-family: var(--face-figure);
-  font-size: var(--text-lg);
-  font-weight: 500;
-  letter-spacing: var(--track-tight);
-  margin: var(--s1) 0 var(--s2);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-title);
+  letter-spacing: var(--track-figure);
+  margin: var(--s2) 0 var(--s2);
 }
 
 .auth__lead {
@@ -1571,25 +1769,20 @@ button.cell:active {
     padding-inline: var(--s5);
   }
 
-  .band__head {
-    padding-inline: var(--s5);
+  .band {
+    padding: var(--s5);
   }
 
-  .band__action {
-    padding-inline: var(--s5);
-  }
-
-  /* The band becomes one ledger line: the run, the figures it is made of, and
-   * the week, all on the same row. Stacked, a band this wide is mostly empty
-   * space between two things at opposite edges. */
+  /* The card becomes one row: the run, the figures it is made of, and the
+   * week. Stacked, a card this wide is mostly empty space between two things
+   * at opposite edges. */
   .band__body {
     grid-template-columns: auto 1fr auto;
     column-gap: var(--s6);
-    padding: 0 var(--s5) var(--s4);
   }
 
   /* The figures spread on a regular rhythm across the middle of the row
-   * rather than bunching next to the run, which is what turns the band from
+   * rather than bunching next to the run, which is what turns the card from
    * two things at opposite edges into a line of a table. */
   .band__meta {
     grid-column: 2;
@@ -1598,7 +1791,7 @@ button.cell:active {
     grid-auto-flow: column;
     grid-auto-columns: minmax(4.5rem, 7rem);
     justify-content: start;
-    gap: var(--s4);
+    gap: var(--s5);
     margin: 0;
     padding: 0;
     border-top: 0;
@@ -1610,8 +1803,17 @@ button.cell:active {
     margin-top: var(--s1);
   }
 
+  /* The strip is given its full width rather than what the row has left, so
+   * that the weeks line up down a column of cards. Sized by the content it
+   * varied with the number of figures beside it, and two cards' Mondays
+   * started in different places. */
   .band__week {
     grid-column: 3;
+    width: calc(7 * var(--strip-cell-max) + 6 * var(--strip-gap));
+  }
+
+  .counter {
+    padding: var(--s6);
   }
 
   .sheet {
@@ -1620,7 +1822,7 @@ button.cell:active {
   }
 
   .sheet__panel {
-    border-bottom: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--line-strong);
     border-radius: var(--radius-lg);
   }
 
@@ -1630,7 +1832,7 @@ button.cell:active {
 
   .tabs {
     justify-content: center;
-    gap: var(--s4);
+    gap: var(--s2);
   }
 
   .tabs__tab {
@@ -1643,8 +1845,8 @@ button.cell:active {
     gap: var(--s3);
   }
 
-  /* Seven bars stretched across 54rem are seven marks a long way apart, not a
-   * chart. The plot keeps a width a row of bars can actually be read across,
+  /* Seven bars stretched across the page are seven marks a long way apart, not
+   * a chart. The plot keeps a width a row of bars can actually be read across,
    * and the bars grow with it. */
   .chart {
     max-width: 34rem;

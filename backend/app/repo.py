@@ -38,7 +38,7 @@ def habit_dict(row: sqlite3.Row) -> dict:
         "name": row["name"],
         "kind": row["kind"],
         "icon": row["icon"],
-        "accent": row["accent"],
+        "color": row["color"],
         "start_date": row["start_date"],
         "target_per_week": row["target_per_week"],
         "allows_planned": bool(row["allows_planned"]),
@@ -153,14 +153,14 @@ def create_habit(data: dict) -> sqlite3.Row:
             "SELECT COALESCE(MAX(sort_order), -1) + 1 AS n FROM habits"
         ).fetchone()["n"]
         cursor = conn.execute(
-            "INSERT INTO habits (name, kind, icon, accent, start_date, target_per_week,"
+            "INSERT INTO habits (name, kind, icon, color, start_date, target_per_week,"
             " allows_planned, unit, notes, sort_order, created_at, updated_at)"
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 data["name"].strip(),
                 data["kind"],
                 data["icon"],
-                data["accent"],
+                data["color"],
                 iso(data["start_date"]),
                 data["target_per_week"] if data["kind"] == "positive" else None,
                 1 if (data["allows_planned"] and data["kind"] == "negative") else 0,
@@ -178,7 +178,7 @@ def create_habit(data: dict) -> sqlite3.Row:
 _PATCHABLE = {
     "name": "name",
     "icon": "icon",
-    "accent": "accent",
+    "color": "color",
     "target_per_week": "target_per_week",
     "allows_planned": "allows_planned",
     "unit": "unit",

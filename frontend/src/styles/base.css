@@ -32,20 +32,21 @@ body {
 }
 
 /* Every figure in the app is tabular, so columns of numbers line up and a
- * counter ticking from 9 to 10 does not shift the layout. */
+ * counter ticking from 9 to 10 does not shift the layout. The weight is the
+ * point: a run of 99 days is the one thing on the screen worth reading from
+ * across the room. */
 .figure {
   font-family: var(--face-figure);
   font-variant-numeric: tabular-nums lining-nums;
+  font-weight: var(--weight-figure);
   letter-spacing: var(--track-figure);
   line-height: 1;
 }
 
-/* Headings are set in the same serif as the figures, which is what makes the
- * page read as one printed object rather than as a serif number dropped into a
- * sans interface. */
-.serif {
-  font-family: var(--face-figure);
-  font-weight: 500;
+/* Titles. The same face as everything else — the hierarchy is carried by
+ * weight and size, not by a second family. */
+.title {
+  font-weight: var(--weight-title);
   letter-spacing: var(--track-tight);
   text-wrap: balance;
 }
@@ -71,14 +72,14 @@ button {
 
 a {
   color: inherit;
-  text-decoration-color: var(--rule-strong);
+  text-decoration-color: var(--line-strong);
   text-underline-offset: 2px;
 }
 
 :focus-visible {
   outline: 2px solid var(--kept);
   outline-offset: 2px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
 }
 
 /* Visible only to a screen reader. Used for the state of each day cell, which
@@ -96,19 +97,18 @@ a {
 
 .label {
   font-size: var(--text-xs);
-  letter-spacing: 0.04em;
+  font-weight: var(--weight-label);
+  letter-spacing: var(--track-label);
   color: var(--ink-faint);
 }
 
-/* The line that names a screen or a run of bands. Sentence case and tracked
+/* The line that names a screen or a run of cards. Sentence case and tracked
  * open — not the all-caps micro-label, which the system sans has no real small
- * caps for and which the browser would synthesise as plain capitals. Where a
- * marker heads a section rather than a page it also carries a rule out to the
- * margin; that is `.group__label`, and it is the almanac's own way of naming
- * a column without spending a heading on it. */
+ * caps for and which the browser would synthesise as plain capitals. */
 .marker {
   display: block;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-label);
   letter-spacing: var(--track-label);
   color: var(--ink-faint);
   line-height: 1.2;
@@ -116,7 +116,7 @@ a {
 
 .rule {
   border: 0;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--line);
 }
 
 @media (prefers-reduced-motion: reduce) {

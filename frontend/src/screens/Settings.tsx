@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Button, Field, Glyph, Notice, Segmented, Spinner } from "../components/ui";
+import { Button, Field, Glyph, Mark, Notice, Segmented, Spinner } from "../components/ui";
 import { formatDay } from "../lib/format";
+import { habitStyle } from "../lib/palette";
 import type { Habit, Reason } from "../lib/types";
 import type { Theme } from "../lib/theme";
 
@@ -61,12 +62,8 @@ export function Settings({
         ) : (
           <ul className="rows">
             {active.map((habit, index) => (
-              <li className="rows__row" key={habit.id}>
-                <span
-                  className="rows__dot"
-                  style={{ background: `var(--accent-${habit.accent})` }}
-                  aria-hidden="true"
-                />
+              <li className="rows__row tinted" key={habit.id} style={habitStyle(habit)}>
+                <Mark habit={habit} size="sm" />
                 <button type="button" className="rows__main" onClick={() => onEditHabit(habit)}>
                   <span className="rows__name">{habit.name}</span>
                   <span className="label">
@@ -106,7 +103,8 @@ export function Settings({
           <h2 className="panel__title">Archived</h2>
           <ul className="rows">
             {archived.map((habit) => (
-              <li className="rows__row" key={habit.id}>
+              <li className="rows__row tinted" key={habit.id} style={habitStyle(habit)}>
+                <Mark habit={habit} size="sm" />
                 <button type="button" className="rows__main" onClick={() => onEditHabit(habit)}>
                   <span className="rows__name">{habit.name}</span>
                   <span className="label">history kept, hidden from Today</span>

@@ -29,10 +29,17 @@ Turn it off for a habit where any exception is a real break.
 
 | Screen | What it is for |
 |---|---|
-| **Today** | Every habit as a band: the current run as a large figure, and the current week as seven tappable cells. Logging a day you forgot never needs another screen. |
+| **Today** | Every habit as a card: the current run as a large figure, and the current week as seven tappable cells. Logging a day you forgot never needs another screen. |
 | **Habit** | The counter, a year heatmap, best run, days kept against days tracked, the success rate, milestones, and every day ever logged with its notes. |
 | **Patterns** | Which weekday slips cluster on, what was going on, planned against unplanned, and a month-by-month trend. |
 | **Settings** | Add, edit, reorder and archive habits; reason tags; theme; JSON and CSV export; password. |
+
+Each habit carries its own colour and symbol, picked when it is set up: eighteen
+suggested colours plus the system colour well, and a grid of symbols plus a field
+that takes any emoji or character. The colour marks the habit everywhere it
+appears and fills its days on the chart; the state colours — clean, slipped,
+planned — never change with it, so a habit coloured red does not turn its own
+clean run into an alarm.
 
 ## Running it
 
