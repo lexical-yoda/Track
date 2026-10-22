@@ -1773,45 +1773,6 @@ button.cell:active {
     padding: var(--s5);
   }
 
-  /* The card becomes one row: the run, the figures it is made of, and the
-   * week. Stacked, a card this wide is mostly empty space between two things
-   * at opposite edges. */
-  .band__body {
-    grid-template-columns: auto 1fr auto;
-    column-gap: var(--s6);
-  }
-
-  /* The figures spread on a regular rhythm across the middle of the row
-   * rather than bunching next to the run, which is what turns the card from
-   * two things at opposite edges into a line of a table. */
-  .band__meta {
-    grid-column: 2;
-    grid-row: 1;
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(4.5rem, 7rem);
-    justify-content: start;
-    gap: var(--s5);
-    margin: 0;
-    padding: 0;
-    border-top: 0;
-  }
-
-  .band__span {
-    grid-column: 1;
-    grid-row: 2;
-    margin-top: var(--s1);
-  }
-
-  /* The strip is given its full width rather than what the row has left, so
-   * that the weeks line up down a column of cards. Sized by the content it
-   * varied with the number of figures beside it, and two cards' Mondays
-   * started in different places. */
-  .band__week {
-    grid-column: 3;
-    width: calc(7 * var(--strip-cell-max) + 6 * var(--strip-gap));
-  }
-
   .counter {
     padding: var(--s6);
   }
@@ -1876,6 +1837,62 @@ button.cell:active {
 
   .stats > div:last-child:nth-child(3n + 2) {
     grid-column: span 2;
+  }
+}
+
+/* The card becomes one row: the run, the figures it is made of, and the week.
+ * Stacked, a card this wide is mostly empty space between two things at
+ * opposite edges.
+ *
+ * This needs more room than the rest of the wide layout: the strip alone is
+ * seven tap targets, and beside five figures and the run it wants about 56rem
+ * before anything has to give. Below that the card stays stacked, which is
+ * why this is not in the 40rem block. */
+@media (min-width: 56rem) {
+  .band__body {
+    /* The middle track is minmax(0, 1fr) rather than 1fr: a 1fr track refuses
+     * to go below the min-content width of the figures inside it, so the week
+     * strip in the third column was pushed past the card's right edge instead
+     * of the figures giving way. */
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: var(--s6);
+  }
+
+  /* The figures spread across the middle of the row rather than bunching next
+   * to the run, which is what turns the card from two things at opposite edges
+   * into a line of a table. They wrap when the row runs out, so a habit with
+   * five of them never pushes the week off the card. */
+  .band__meta {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: var(--s4) var(--s5);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border-top: 0;
+  }
+
+  .band__meta div {
+    min-width: 4.5rem;
+  }
+
+  .band__span {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: var(--s1);
+  }
+
+  /* The strip is given its full width rather than what the row has left, so
+   * that the weeks line up down a column of cards. Sized by its content it
+   * varied with the number of figures beside it, and two cards' Mondays
+   * started in different places. */
+  .band__week {
+    grid-column: 3;
+    width: calc(7 * var(--strip-cell-max) + 6 * var(--strip-gap));
+    max-width: 100%;
   }
 }
 
